@@ -1,0 +1,13 @@
+import wollok.game.*
+import pantallas.*
+import naves.*
+import niveles.*
+
+program juego
+{
+	game.title("StarSpaceShips")
+	game.height(10)
+	game.width(21)
+	portada.iniciar()
+	game.start()
+}
