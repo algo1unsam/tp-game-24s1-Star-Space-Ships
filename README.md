@@ -9,7 +9,7 @@
 
 ## Capturas
 
-(agregar)
+![Menu_202](gameplay.png) 
 
 ## Reglas de Juego / Instrucciones
 
