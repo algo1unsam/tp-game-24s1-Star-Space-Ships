@@ -1,10 +1,11 @@
-# Nombre del juego (<- borrar y completar)
+[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/-m140JPW)
+# Star Spaceships
 
 ## Equipo de desarrollo
 
-- Alguien
-- Persona
-- etc.
+- Camila Piraneo
+- Lucas Gonzalez
+- Nicolás Ceballos
 
 ## Capturas
 
