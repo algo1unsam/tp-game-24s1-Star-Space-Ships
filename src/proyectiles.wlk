@@ -93,7 +93,7 @@ class DisparoVertical inherits Disparo
 	}
 	
 }
-//Ver que le podemos poner para que sea una opción viable que dispare vertical
+//IMPORTANTE Ver que le podemos poner para que sea una opción viable que dispare vertical
 class DisparoDiagonal inherits DisparoVertical
 {
 	override method comportamientoDerecha()

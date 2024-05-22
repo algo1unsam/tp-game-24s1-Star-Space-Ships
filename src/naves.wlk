@@ -147,17 +147,17 @@ class Nave
 	
 }
 
-
+// IMPORTANTE usar super
 class Nave1 inherits Nave(armamento = armamentoNave1)
 {
 	override method nombre() = "nave1_"
 }
-
+// IMPORTANTE usar super
 class Nave2 inherits Nave(armamento = armamentoNave2)
 {
 	override method nombre() = "nave2_"
 }
-
+// IMPORTANTE usar super
 class Nave3 inherits Nave(armamento = rifle)// lleva el rifle en disparo Base.
 {
 	override method nombre() = "nave3_"

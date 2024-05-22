@@ -61,6 +61,7 @@ object portada{
 		game.sound(intro).shouldLoop(true)
 		game.sound(intro).volume(0.5)
 		game.schedule(150, {game.sound(intro).play()})
+
 			}
 		}
 
@@ -103,6 +104,7 @@ object seleccionEscenarios{
 									cualFondo = game.uniqueCollider(marco3)
 									seleccionNaves.iniciar()
 									}}
+									//IMPORTANTE ponerlo dentro de un method
 		keyboard.left().onPressDo{if (marco3.movimiento()) {marco3.irALosLados(marco3.position().left(4))}}
 		keyboard.right().onPressDo{if (marco3.movimiento()) {marco3.irALosLados(marco3.position().right(4))}}
 	}
@@ -155,6 +157,7 @@ object seleccionNaves{
 						jugador1Ok = true
 						if (self.seleccionNavesOk()){batalla.iniciar()}
 					}}
+						//IMPORTANTE method con parametros para elección de pjs
 			
 		}
 		
@@ -166,6 +169,7 @@ object seleccionNaves{
 						jugador2Ok = true
 						if (self.seleccionNavesOk()){batalla.iniciar()}
 					}}
+					//IMPORTANTE method con parametros para elección de pjs
 			
 		}
 	}
@@ -251,6 +255,7 @@ object final
 		game.addVisual(final)
 		self.iniciar()
 	}
+	// IMPORTANTE unificar validar vida, tiene que ser uno solo y el jugador/imagen sea por parametro
 	method validarVida() {
 		check = jugador1.vidas()
 		if (check <= 0){
@@ -258,6 +263,7 @@ object final
 			self.finalizarBatalla()
 		}
 		}
+		// IMPORTANTE unificar validar vida, tiene que ser uno solo y el jugador/imagen sea por parametro
   	 method validarVida2() {
 		check = jugador2.vidas()
 		if (check <= 0){
