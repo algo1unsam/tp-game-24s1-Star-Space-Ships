@@ -1,5 +1,6 @@
 import wollok.game.*
 import extras.*
+import naves.*
 
 class Disparo
 {
@@ -143,8 +144,8 @@ class Armamento
 	}
 }
 
-class Rifle inherits Armamento{
-	var property contador = 18
+class Rafaga inherits Armamento{
+	var property carga = 18
 	var cooldown = 1
 	
 	
@@ -155,7 +156,8 @@ class Rifle inherits Armamento{
 	 method dispararProyectil2(nave){
 		
 			cooldown = 0
-			if(not self.vacio() and cooldown == 1)
+			if((not self.vacio()) and cooldown == 0)
+			{
 			self.dispararProyectil(nave,self.balaInit(nave))
 			game.schedule(100,{
 				self.dispararProyectil(nave,self.balaInit(nave))
@@ -167,20 +169,27 @@ class Rifle inherits Armamento{
 					})
 				})
 			})
+			}
+			else{
+				nave.armamento().remove(nave.armamento().last())
+				nave.armaActual(nave.armamento().last())
+			}
 	}
 	
 	override method dispararProyectil( nave,proyectil){
+		carga = carga - 1
 		super(nave,proyectil)
-		contador = contador - 1	
+			
 	}
 	
-	method vacio(){return contador == 0}
+	method vacio()=carga<=0
+					
 	
 	method _cooldown(){
 		game.schedule(600,{=> cooldown = 1})
 	}
 	
-	method recargar(){contador = contador + 12}//
+	method recargar(recarga){carga = carga + recarga}//
 
 }
 
@@ -189,6 +198,7 @@ object armamentoNave1 inherits Armamento
 {
 	method dispararProyectil2(_chara)
 	{
+		_chara.disparo()
 		const proyectil = new DisparoVertical(position = _chara.position(),imagen=self.image(_chara))
 		self.dispararProyectil(_chara,proyectil)
 	}
@@ -197,7 +207,8 @@ object armamentoNave1 inherits Armamento
 object armamentoNave2 inherits Armamento
 {
 	method dispararProyectil2(_chara)
-	{
+	{	
+		_chara.disparo()
 		const proyectil = new DisparoDiagonal(position = _chara.position(),imagen=self.image(_chara))
 		self.dispararProyectil(_chara,proyectil)
 	}
@@ -205,12 +216,13 @@ object armamentoNave2 inherits Armamento
 object armamentoC inherits Armamento
 {
 	method dispararProyectil2(_chara)
-	{
+	{	
+		_chara.disparo()
 		const proyectil = new DisparoDiagonalInferior(position = _chara.position(),imagen=self.image(_chara))
 		self.dispararProyectil(_chara,proyectil)
 	}
 }
 
-object rifle inherits Rifle{
+object rafaga inherits Rafaga{
 	
 }

@@ -87,7 +87,8 @@ class Nave
 	var property estado = reposo
 	var property estadoVertical = suelo
 	var property position = game.origin()
-	const property armamento
+	var property armamento
+	var property armaActual=armamento.last()
 	var property jugador
 	
 	method nombre()
@@ -137,28 +138,33 @@ class Nave
 	method disparo1()
 	{
 		self.disparo()
-		armamento.dispararProyectil1(self)
+		armaActual.dispararProyectil1(self)
 	}
 	method disparo2()
 	{
-		self.disparo()
-		armamento.dispararProyectil2(self)
+		//self.disparo()
+		armaActual.dispararProyectil2(self)
 	}
 	
+	method agregarArmamento(orbe){
+		
+	}
 }
 
 // IMPORTANTE usar super
-class Nave1 inherits Nave(armamento = armamentoNave1)
+class Nave1 inherits Nave(armamento=[armamentoNave1])
 {
+	
 	override method nombre() = "nave1_"
+	
 }
 // IMPORTANTE usar super
-class Nave2 inherits Nave(armamento = armamentoNave2)
+class Nave2 inherits Nave(armamento = [armamentoNave2])
 {
 	override method nombre() = "nave2_"
 }
 // IMPORTANTE usar super
-class Nave3 inherits Nave(armamento = rifle)// lleva el rifle en disparo Base.
+class Nave3 inherits Nave(armamento=[armamentoC])// lleva el rifle en disparo Base.
 {
 	override method nombre() = "nave3_"
 }

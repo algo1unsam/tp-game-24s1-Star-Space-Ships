@@ -202,18 +202,15 @@ object visualesGeneral
 		visuales.forEach{ visual=>
 			game.addVisual(visual)
 		}
-		self.agregarPociones()
+		self.agregarOrbes()
 	}
-	method agregarPociones()
+	method agregarOrbes()
 	{
 		var time = 5000
-		const pocion1 = new PocionEnergia()
-		const pocion2 = new PocionEnergia()
-		const pocion3 = new PocionEnergia()
-		const pocion4 = new PocionEnergia()
-		const pocion5 = new PocionEnergia()
-		const listaPociones = [pocion1,pocion2,pocion3,pocion4,pocion5]
-		listaPociones.forEach({pocion => game.schedule(time,{pocion.agregarPocion()}) time=time+5000})
+		
+		game.schedule(time,{new OrbeEnergia().agregarOrbeP1() new OrbeEnergia().agregarOrbeP2()
+			game.schedule(time*2,{new OrbeRafaga().agregarOrbeP1() new OrbeRafaga().agregarOrbeP2()})
+		})
 	}
 }
 
