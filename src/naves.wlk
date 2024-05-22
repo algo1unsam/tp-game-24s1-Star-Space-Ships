@@ -164,7 +164,7 @@ class Nave2 inherits Nave(armamento = [armamentoNave2])
 	override method nombre() = "nave2_"
 }
 // IMPORTANTE usar super
-class Nave3 inherits Nave(armamento=[armamentoC])// lleva el rifle en disparo Base.
+class Nave3 inherits Nave(armamento=[armamentoC])
 {
 	override method nombre() = "nave3_"
 }

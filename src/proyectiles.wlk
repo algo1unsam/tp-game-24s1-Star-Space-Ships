@@ -5,8 +5,9 @@ import naves.*
 class Disparo
 {
 	var property position
-	const property etiquetaTickMovement = "mover"+self.toString()  
 	const imagen
+	
+	method etiquetaTickMovement() = "mover"+self.toString()  
 	method image() = imagen
 	method danio() = 10
 	method haceDanio(jugador)
@@ -42,7 +43,7 @@ class Disparo
 	//Detiene el movimiento de los tiros
 	method detenerMovimiento()
 	{
-		game.removeTickEvent(etiquetaTickMovement)
+		game.removeTickEvent(self.etiquetaTickMovement())
 		game.removeVisual(self)
 	}
 	
@@ -59,11 +60,11 @@ class Disparo
 	}
 	method comportamientoIzquierda()
 	{
-		game.onTick(50,etiquetaTickMovement,{=> self.moverIzq()})
+		game.onTick(50,self.etiquetaTickMovement(),{=> self.moverIzq()})
 	}
 	method comportamientoDerecha()
 	{
-		game.onTick(50,etiquetaTickMovement,{=> self.moverDer()})
+		game.onTick(50,self.etiquetaTickMovement(),{=> self.moverDer()})
 	}
 	method subir(nave){}
 }
@@ -82,11 +83,11 @@ class DisparoVertical inherits Disparo
 	}
 	method comportamientoArriba()
 	{
-		game.onTick(100,etiquetaTickMovement,{=> self.moverArriba()})
+		game.onTick(100,self.etiquetaTickMovement(),{=> self.moverArriba()})
 	}
 	method comportamientoAbajo()
 	{
-		game.onTick(100,etiquetaTickMovement,{=> self.moverAbajo()})
+		game.onTick(100,self.etiquetaTickMovement(),{=> self.moverAbajo()})
 	}
 	override method evaluarComportamiento(_chara)
 	{
@@ -99,11 +100,11 @@ class DisparoDiagonal inherits DisparoVertical
 {
 	override method comportamientoDerecha()
 	{
-		game.onTick(100,etiquetaTickMovement,{=> self.moverDer() self.moverArriba()})
+		game.onTick(100,self.etiquetaTickMovement(),{=> self.moverDer() self.moverArriba()})
 	}
 	override method comportamientoIzquierda()
 	{
-		game.onTick(100,etiquetaTickMovement,{=> self.moverIzq() self.moverArriba()})
+		game.onTick(100,self.etiquetaTickMovement,{=> self.moverIzq() self.moverArriba()})
 	}
 	override method evaluarComportamiento(_chara)
 	{
@@ -115,11 +116,11 @@ class DisparoDiagonalInferior inherits DisparoDiagonal
 {
 	override method comportamientoDerecha()
 	{
-		game.onTick(100,etiquetaTickMovement,{=> self.moverDer() self.moverAbajo()})
+		game.onTick(100,self.etiquetaTickMovement(),{=> self.moverDer() self.moverAbajo()})
 	}
 	override method comportamientoIzquierda()
 	{
-		game.onTick(100,etiquetaTickMovement,{=> self.moverIzq() self.moverAbajo()})
+		game.onTick(100,self.etiquetaTickMovement(),{=> self.moverIzq() self.moverAbajo()})
 	}
 }
 
@@ -134,7 +135,7 @@ class Armamento
 	{
 		proyectil.colocarProyectil(_chara)
 		proyectil.automaticSelfDestruction()
-		game.schedule(100,{=>_chara.estado(reposo)})
+		//game.schedule(100,{=>_chara.estado(reposo)})
 	}
 	
 	method dispararProyectil1(_chara)
@@ -155,9 +156,10 @@ class Rafaga inherits Armamento{
 	
 	 method dispararProyectil2(nave){
 		
-			cooldown = 0
-			if((not self.vacio()) and cooldown == 0)
+			cooldown = 1
+			if((not self.vacio()) and cooldown == 1)
 			{
+			cooldown=0
 			self.dispararProyectil(nave,self.balaInit(nave))
 			game.schedule(100,{
 				self.dispararProyectil(nave,self.balaInit(nave))
@@ -184,14 +186,94 @@ class Rafaga inherits Armamento{
 	
 	method vacio()=carga<=0
 					
-	
 	method _cooldown(){
 		game.schedule(600,{=> cooldown = 1})
 	}
-	
-	method recargar(recarga){carga = carga + recarga}//
 
 }
+
+
+class Misil inherits Armamento{
+	
+	var property contador = 6
+	var cooldown = 1
+	
+	override method image(_chara)="Misil"+_chara.direccion()+".png"
+	
+	method init(nave)=if(nave.direccion()==derecha){return new Explosivo(position=nave.position().right(1),imagen =self.image(nave))}
+	else{return new Explosivo(position=nave.position().left(1),imagen =self.image(nave))}
+	
+	method dispararProyectil2(nave){
+		if((not self.vacio()) and cooldown == 1){
+			cooldown = 0
+			self.dispararProyectil(nave,self.init(nave))
+			contador = contador - 1
+			self._cooldown()
+		}
+		
+	
+	}
+	
+	override method dispararProyectil1(nave){
+		new Armamento().dispararProyectil1(nave)
+	}
+	
+	method vacio(){return contador == 0}
+	
+	method _cooldown(){
+		game.schedule(2500,{=> cooldown = 1})
+	}
+	
+}
+
+class Explosivo inherits Disparo{
+	
+	
+	override method danio()=50
+	
+	override method interaccionCon(jugador)
+	{	
+		game.removeTickEvent(self.etiquetaTickMovement())	
+		self.explotar(jugador.nave().position().x(),jugador.nave().position().y())
+		game.schedule(600,({self.haceDanio(jugador) game.removeVisual(self)}))	
+			
+	}
+	
+	override method automaticSelfDestruction(){
+		game.schedule(2500,{if(game.allVisuals().contains(self)){self.detenerMovimiento()}})
+	}
+	
+	override method colocarProyectil(_chara)
+	{
+		self.evaluarComportamiento(_chara)
+		game.schedule(100,
+			{=>	game.addVisual(self)
+				self.sonido("misil.mp3")})
+	}
+	
+	
+	method explotar(positionX, positionY){
+		(positionX-2..positionX+2).forEach({n => new Explosion().explotar(n,positionY)})
+		(positionX-1..positionX+1).forEach({n => new Explosion().explotar(n,positionY+1)})
+		(positionX-1..positionX+1).forEach({n => new Explosion().explotar(n,positionY-1)})
+		new Explosion().explotar(positionX, positionY+2)
+		new Explosion().explotar(positionX, positionY-2)
+	}	
+}
+
+class Explosion {
+	method image(){return "explosion.png"}
+	
+	method position()=game.origin()
+	
+	method explotar(positionX, positionY){
+		game.addVisualIn(self, game.at(positionX,positionY))
+		game.schedule(500,({game.removeVisual(self)}))
+		//4.times({i=>impacto.impactar(self)})
+	}
+}
+
+
 
 
 object armamentoNave1 inherits Armamento
@@ -224,5 +306,6 @@ object armamentoC inherits Armamento
 }
 
 object rafaga inherits Rafaga{
-	
 }
+
+object misil inherits Misil{}

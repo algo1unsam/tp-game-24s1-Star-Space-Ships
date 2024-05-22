@@ -112,7 +112,8 @@ class OrbeEnergia
 		self.recarga(jugador)
 	}
 	
-	method orbeJugador(pantallaJugador)=if(pantallaJugador.nave().position().x()<10){self.agregarOrbeP1()}else self.agregarOrbeP2()
+	method orbeJugador(pantallaJugador)=if(pantallaJugador.nave().position().x()<10){self.agregarOrbeP1()}
+	else self.agregarOrbeP2()
 }
 
 class OrbeRafaga inherits OrbeEnergia{
@@ -139,6 +140,38 @@ class OrbeRafaga inherits OrbeEnergia{
 			
 		}
 		else{jugador.nave().armamento().add(new Rafaga())
+		jugador.nave().armaActual(jugador.nave().armamento().last())
+		}
+		
+		self.removerPng(jugador)
+	}	
+}
+
+class OrbeMisil inherits OrbeEnergia{
+	
+	const recarga=3
+	var misil
+	method image() = "orbe-violeta.png"
+	
+	
+	override method regenerarOrbe(pantallaJugador)
+	{
+		game.schedule(30000,{=>self.orbeJugador(pantallaJugador)})
+	}
+	
+	method recargarRafaga(arma){
+		arma.carga(arma.carga()+recarga)
+	}
+	
+	override method recarga(jugador)
+	{
+		
+		if(jugador.nave().armamento().contains("un/a  Misil")){
+			self.recargarRafaga(jugador.nave().armamento().find({arma=>arma.toString().equals("un/a  Misil")}))
+			
+		}
+		else{
+		jugador.nave().armamento().add(new Misil())
 		jugador.nave().armaActual(jugador.nave().armamento().last())
 		}
 		
