@@ -15,7 +15,7 @@ class Jugador
 	method controles()
 	
 	method asignarNave() {
-		nave.jugador(self)
+
 		nave.position(self.posicionInicial())
 		nave.direccion(self.direccionInicial())
 	}
@@ -34,9 +34,9 @@ class Jugador
 		if (self.sinEnergia()) {throw new Exception(message="Sin Energia")}
 	}
 	
-	method recargaEnergia(pocion) 
+	method recargaEnergia(orbe) 
 	{
-		energia += pocion
+		energia += orbe
 	}
 }
 
@@ -54,9 +54,7 @@ object jugador1 inherits Jugador(nave = null){
 		keyboard.x().onPressDo({nave.disparo2()})
 	}
 	
-	override method asignarNave() {
-		nave = seleccionNaves.quienJugador1()
-		super()}
+	
 }
 
 object jugador2 inherits Jugador(nave = null){
@@ -74,18 +72,13 @@ object jugador2 inherits Jugador(nave = null){
 		keyboard.k().onPressDo({nave.disparo2()})
 	}
 	
-	override method asignarNave() {
-		nave = seleccionNaves.quienJugador2()
-		super()
 	}
-}
+
 
 
 class Nave
 {
 	var property direccion = derecha //La orientacion a donde la nave está apuntando. Puede ser izquierda (izq) o derecha (der)
-	var property estado = reposo
-	var property estadoVertical = suelo
 	var property position = game.origin()
 	var property armamento
 	var property armaActual=armamento.last()
@@ -93,7 +86,7 @@ class Nave
 	
 	method nombre()
 	
-	method image()= self.nombre() + direccion.nombre() + estado.nombre() + ".png"
+	method image()= self.nombre() + direccion.nombre() /* + estado.nombre()*/ + ".png"
 	
 	method moverDerecha()
 	{	
@@ -132,8 +125,8 @@ class Nave
 	
 	method disparo()
 	{
-		self.gastarEnergia(20)
-		estado = ataque
+		self.gastarEnergia(10)
+		
 	}
 	method disparo1()
 	{
@@ -142,7 +135,6 @@ class Nave
 	}
 	method disparo2()
 	{
-		//self.disparo()
 		armaActual.dispararProyectil2(self)
 	}
 	
@@ -151,20 +143,21 @@ class Nave
 	}
 }
 
+//Esto no debería llevar super. Las naves no modifican ningún comportamiento heredado.
 // IMPORTANTE usar super
-class Nave1 inherits Nave(armamento=[armamentoNave1])
+class Nave1 inherits Nave(armamento=[especialNave1])
 {
 	
 	override method nombre() = "nave1_"
 	
 }
 // IMPORTANTE usar super
-class Nave2 inherits Nave(armamento = [armamentoNave2])
+class Nave2 inherits Nave(armamento = [especialNave2])
 {
 	override method nombre() = "nave2_"
 }
 // IMPORTANTE usar super
-class Nave3 inherits Nave(armamento=[armamentoC])
+class Nave3 inherits Nave(armamento=[especialNave3])
 {
 	override method nombre() = "nave3_"
 }

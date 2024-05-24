@@ -52,25 +52,6 @@ object izquierda
 	method repeler(personaje){personaje.moverIzquierda()}
 }
 
-object reposo
-{
-	method nombre()=""
-}
-
-object suelo{
-	method comportamientoDireccional(disparo){disparo.comportamientoArriba()}
-}
-
-object aire{
-	method comportamientoDireccional(disparo){disparo.comportamientoAbajo()}
-}
-
-
-object ataque
-{
-	method nombre()="_ataque"
-}
-
 class OrbeEnergia
 {
 	const energiaQueRestaura = 10
@@ -116,30 +97,24 @@ class OrbeEnergia
 	else self.agregarOrbeP2()
 }
 
-class OrbeRafaga inherits OrbeEnergia{
+class OrbeArma inherits OrbeEnergia{
+		
+	method recarga() 
+	method arma()
+	method armaInstancia()
 	
-	const recarga=18
-	var rafaga
-	method image() = "orbe-naranja.png"
-	
-	
-	override method regenerarOrbe(pantallaJugador)
-	{
-		game.schedule(20000,{=>self.orbeJugador(pantallaJugador)})
-	}
-	
-	method recargarRafaga(arma){
-		arma.carga(arma.carga()+recarga)
+	method recargarArma(arma){
+		arma.carga(arma.carga()+self.recarga())
 	}
 	
 	override method recarga(jugador)
 	{
-		
-		if(jugador.nave().armamento().contains("un/a  Rafaga")){
-			self.recargarRafaga(jugador.nave().armamento().find({arma=>arma.toString().equals("un/a  Rafaga")}))
+		//Colecciones
+		if(jugador.nave().armamento().contains(self.arma())){
+			self.recargarArma(jugador.nave().armamento().find({arma=>arma.toString().equals(self.arma())}))
 			
 		}
-		else{jugador.nave().armamento().add(new Rafaga())
+		else{jugador.nave().armamento().add(self.armaInstancia())
 		jugador.nave().armaActual(jugador.nave().armamento().last())
 		}
 		
@@ -147,36 +122,33 @@ class OrbeRafaga inherits OrbeEnergia{
 	}	
 }
 
-class OrbeMisil inherits OrbeEnergia{
+class OrbeRafaga inherits OrbeArma{
 	
-	const recarga=3
-	var misil
-	method image() = "orbe-violeta.png"
+	override method recarga()=18
+	override method image() = "orbe-naranja.png"
+	override method arma()="un/a  Rafaga"
+	override method armaInstancia()=new Rafaga()
+	
+	
+	override method regenerarOrbe(pantallaJugador)//Distinto tiempo que el orbe Energia
+	{
+		game.schedule(20000,{=>self.orbeJugador(pantallaJugador)})
+	}
+	
+}
+
+class OrbeMisil inherits OrbeArma{
+	
+	override method recarga()=3
+	override method image() = "orbe-violeta.png"
+	override method arma()="un/a  Misil"
+	override method armaInstancia()=new Misil()
 	
 	
 	override method regenerarOrbe(pantallaJugador)
 	{
 		game.schedule(30000,{=>self.orbeJugador(pantallaJugador)})
 	}
-	
-	method recargarRafaga(arma){
-		arma.carga(arma.carga()+recarga)
-	}
-	
-	override method recarga(jugador)
-	{
-		
-		if(jugador.nave().armamento().contains("un/a  Misil")){
-			self.recargarRafaga(jugador.nave().armamento().find({arma=>arma.toString().equals("un/a  Misil")}))
-			
-		}
-		else{
-		jugador.nave().armamento().add(new Misil())
-		jugador.nave().armaActual(jugador.nave().armamento().last())
-		}
-		
-		self.removerPng(jugador)
-	}	
 }
 
 object reguladorDeEnergia

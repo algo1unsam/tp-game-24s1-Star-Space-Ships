@@ -10,4 +10,5 @@ program juego
 	game.width(21)
 	portada.iniciar()
 	game.start()
+	
 }

@@ -5,7 +5,7 @@ import naves.*
 class Disparo
 {
 	var property position
-	const imagen
+	const property imagen
 	
 	method etiquetaTickMovement() = "mover"+self.toString()  
 	method image() = imagen
@@ -40,6 +40,16 @@ class Disparo
 		position = self.position().right(1)
 	}
 	
+	method moverArriba()
+	{
+		position = self.position().up(1)
+	}
+	method moverAbajo()
+	{
+		position = self.position().down(1)
+	}
+	
+	
 	//Detiene el movimiento de los tiros
 	method detenerMovimiento()
 	{
@@ -66,37 +76,24 @@ class Disparo
 	{
 		game.onTick(50,self.etiquetaTickMovement(),{=> self.moverDer()})
 	}
-	method subir(nave){}
-}
-
-class DisparoVertical inherits Disparo
-{
-	override method danio() = 30
-
-	method moverArriba()
-	{
-		position = self.position().up(1)
-	}
-	method moverAbajo()
-	{
-		position = self.position().down(1)
-	}
+	
 	method comportamientoArriba()
 	{
 		game.onTick(100,self.etiquetaTickMovement(),{=> self.moverArriba()})
 	}
+	
 	method comportamientoAbajo()
 	{
 		game.onTick(100,self.etiquetaTickMovement(),{=> self.moverAbajo()})
 	}
-	override method evaluarComportamiento(_chara)
-	{
-		_chara.estadoVertical().comportamientoDireccional(self)
-	}
+	
 	
 }
-//IMPORTANTE Ver que le podemos poner para que sea una opción viable que dispare vertical
-class DisparoDiagonal inherits DisparoVertical
+
+//IMPORTANTE Ver que le podemos poner para que sea una opción viable que dispare vertical=> Unifico métodos de disparo vertical 
+//en class Disparo y cambio los especiales
+
+class DisparoDiagonal inherits Disparo
 {
 	override method comportamientoDerecha()
 	{
@@ -104,7 +101,7 @@ class DisparoDiagonal inherits DisparoVertical
 	}
 	override method comportamientoIzquierda()
 	{
-		game.onTick(100,self.etiquetaTickMovement,{=> self.moverIzq() self.moverArriba()})
+		game.onTick(100,self.etiquetaTickMovement(),{=> self.moverIzq() self.moverArriba()})
 	}
 	override method evaluarComportamiento(_chara)
 	{
@@ -124,7 +121,27 @@ class DisparoDiagonalInferior inherits DisparoDiagonal
 	}
 }
 
-
+class DisparoEspecial inherits Disparo{
+	
+	var property arriba= new DisparoDiagonal(position=self.position(), imagen=self.imagen())
+	var property abajo=new DisparoDiagonalInferior(position=self.position(), imagen=self.imagen())
+	override method colocarProyectil(_chara)
+	{
+		abajo.evaluarComportamiento(_chara)
+		arriba.evaluarComportamiento(_chara)
+		game.schedule(100,
+			{=>	game.addVisual(arriba)
+				game.addVisual(abajo)
+				self.sonido("blaster.mp3")})
+	}
+	
+	override method automaticSelfDestruction()
+	{
+			game.schedule(1500,{arriba.detenerMovimiento()
+								abajo.detenerMovimiento()
+			})
+	}
+}
 
 
 //Armas
@@ -215,7 +232,8 @@ class Misil inherits Armamento{
 	}
 	
 	override method dispararProyectil1(nave){
-		new Armamento().dispararProyectil1(nave)
+		super(nave)
+		//new Armamento().dispararProyectil1(nave)
 	}
 	
 	method vacio(){return contador == 0}
@@ -269,39 +287,46 @@ class Explosion {
 	method explotar(positionX, positionY){
 		game.addVisualIn(self, game.at(positionX,positionY))
 		game.schedule(500,({game.removeVisual(self)}))
-		//4.times({i=>impacto.impactar(self)})
 	}
 }
 
 
 
 
-object armamentoNave1 inherits Armamento
+object especialNave1 inherits Armamento
 {
 	method dispararProyectil2(_chara)
 	{
-		_chara.disparo()
-		const proyectil = new DisparoVertical(position = _chara.position(),imagen=self.image(_chara))
+		3.times({iter=>_chara.disparo()})
+		const proyectil = new DisparoEspecial(position = _chara.position(),imagen=self.image(_chara))
 		self.dispararProyectil(_chara,proyectil)
+		self.dispararProyectil1(_chara)
+		
 	}
 }
 
-object armamentoNave2 inherits Armamento
+object especialNave2 inherits Armamento
 {
 	method dispararProyectil2(_chara)
 	{	
-		_chara.disparo()
-		const proyectil = new DisparoDiagonal(position = _chara.position(),imagen=self.image(_chara))
-		self.dispararProyectil(_chara,proyectil)
+		3.times({iter=>_chara.disparo()})
+		const proyectil1 = new Disparo(position = _chara.position().up(3), imagen=self.image(_chara))
+		const proyectil2 = new Disparo(position = _chara.position().down(3),imagen=self.image(_chara))
+		self.dispararProyectil(_chara,proyectil1)
+		self.dispararProyectil(_chara,proyectil2)
+		game.schedule(200,{self.dispararProyectil1(_chara)})
 	}
 }
-object armamentoC inherits Armamento
+object especialNave3 inherits Armamento
 {
 	method dispararProyectil2(_chara)
 	{	
-		_chara.disparo()
-		const proyectil = new DisparoDiagonalInferior(position = _chara.position(),imagen=self.image(_chara))
-		self.dispararProyectil(_chara,proyectil)
+		3.times({iter=>_chara.disparo()})
+		self.dispararProyectil1(_chara)
+		const proyectil1 = new Disparo(position = _chara.position().up(1), imagen=self.image(_chara))
+		const proyectil2 = new Disparo(position = _chara.position().down(1),imagen=self.image(_chara))
+		self.dispararProyectil(_chara,proyectil1)
+		self.dispararProyectil(_chara,proyectil2)
 	}
 }
 

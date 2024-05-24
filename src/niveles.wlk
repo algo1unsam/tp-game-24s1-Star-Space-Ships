@@ -9,10 +9,12 @@ class Fondo{
 	method interaccionCon(jugador){}
 	method sonido(sonidoDeFondo)
 	{
-		game.sound(sonidoDeFondo).shouldLoop(true)
-		game.sound(sonidoDeFondo).volume(0.5)
-		game.schedule(150, {game.sound(sonidoDeFondo).play()})
+		sonidoDeFondo.shouldLoop(true)
+		sonidoDeFondo.volume(0.5)
+		game.schedule(150, {sonidoDeFondo.play()})
 	}
+	
+	
 }
 
 class Marco{
@@ -54,19 +56,20 @@ class Escenario{
 
 object portada{
 	const testeo = new Fondo(image="portada.png")
-	const intro = game.sound("intro.mp3")
+	const intros = game.sound("track6.mp3")
 	method iniciar(){
 		game.addVisual(testeo)
-		keyboard.enter().onPressDo{instrucciones.iniciar()}
-		game.sound(intro).shouldLoop(true)
-		game.sound(intro).volume(0.5)
-		game.schedule(150, {game.sound(intro).play()})
+		keyboard.enter().onPressDo{instrucciones.iniciar(intros)}
+		intros.shouldLoop(true)
+		intros.volume(0.5)
+		game.schedule(150, {intros.play()})
 
 			}
 		}
 
 object instrucciones{
-	method iniciar(){
+	method iniciar(intro){
+		intro.stop()
 		game.clear()
 		game.addVisual(new Fondo(image="controles.png"))
 		keyboard.enter().onPressDo{seleccionEscenarios.iniciar()}
@@ -78,10 +81,10 @@ object instrucciones{
 object seleccionEscenarios{
 	var property cualFondo
 	const property marco3 = new Marco(position = game.at(2,3), image = "marco3.png", x1 = 2, x2 = 16)
-	method space()		  = new Escenario(escenario = new NivelUno(), position = game.at(2,3), image = "spaceSmall.png", sonidoDeFondo = "track1.mp3" )
-	method clouds()	  = new Escenario(escenario = new NivelDos(), position = game.at(6,3), image = "cloudsSmall.png", sonidoDeFondo = "track2.mp3")
-	method pinkNebula()	  = new Escenario(escenario = new NivelTres(), position = game.at(10,3), image = "pinknebulaSmall.png", sonidoDeFondo = "track3.mp3")
-	method futuro() 	  = new Escenario(escenario = new NivelCuatro(), position = game.at(14,3), image = "futureSmall.png", sonidoDeFondo = "track4.mp3")
+	method space()		  = new Escenario(escenario = new NivelUno(), position = game.at(2,3), image = "spaceSmall.png", sonidoDeFondo = game.sound("track1.mp3") )
+	method clouds()	  = new Escenario(escenario = new NivelDos(), position = game.at(6,3), image = "cloudsSmall.png", sonidoDeFondo = game.sound("track2.mp3"))
+	method pinkNebula()	  = new Escenario(escenario = new NivelTres(), position = game.at(10,3), image = "pinknebulaSmall.png", sonidoDeFondo = game.sound("track3.mp3"))
+	method futuro() 	  = new Escenario(escenario = new NivelCuatro(), position = game.at(14,3), image = "futureSmall.png", sonidoDeFondo = game.sound("track4.mp3"))
 	
 	method iniciar(){
 		game.clear()
@@ -112,18 +115,15 @@ object seleccionEscenarios{
 }
 
 object seleccionNaves{
-	var property n1 = new Nave1(position=game.at(7,4),jugador=null)
-	var property n2 = new Nave2(position=game.at(9,4),jugador=null)
-	var property n3 = new Nave3(position=game.at(11,4),jugador=null)
+	var property n1 = new Nave1(position=game.at(7,4))
+	var property n2 = new Nave2(position=game.at(9,4))
+	var property n3 = new Nave3(position=game.at(11,4))
 	
 	var property marco1 = new Marco(position = game.at(7,4), image = "marco1.png", x1 = 7, x2 = 12)
 	var property marco2 = new Marco(position = game.at(9,4), image = "marco2.png", x1 = 7, x2 = 12)
 	
 	var property jugador1Ok = false
 	var property jugador2Ok = false
-	
-	var property quienJugador1 
-	var property quienJugador2
 	
 	method iniciar(){
 		game.clear()
@@ -142,30 +142,33 @@ object seleccionNaves{
 		game.addVisual(marco2)
 	}
 
-	method escogerNave(_marco){
+	method escogerNave(_marco,playerSelecc){
+		const nave=game.uniqueCollider(_marco)
 		_marco.bloquearMovimiento()
-		return game.uniqueCollider(_marco)
+		 playerSelecc.nave(nave)
+		 nave.jugador(playerSelecc)
 	}
-
+	
+	
 	method agregarTeclas(){
 		keyboard.enter().onPressDo{self.iniciar()}
 		keyboard.a().onPressDo{if (marco1.movimiento()){marco1.irALosLados(marco1.position().left(2))}	}
 		keyboard.d().onPressDo{if (marco1.movimiento()) {marco1.irALosLados(marco1.position().right(2))}}
 		keyboard.e().onPressDo{if (marco1.movimiento()){
 					if (not (marco1.position()==marco2.position())) {
-						quienJugador1 = self.escogerNave(marco1)
+						self.escogerNave(marco1,jugador1)
 						jugador1Ok = true
 						if (self.seleccionNavesOk()){batalla.iniciar()}
 					}}
 						//IMPORTANTE method con parametros para elección de pjs
-			
+						//Modificado?
 		}
 		
 		keyboard.left().onPressDo{if (marco2.movimiento()) {marco2.irALosLados(marco2.position().left(2))}}
 		keyboard.right().onPressDo{if (marco2.movimiento()) {marco2.irALosLados(marco2.position().right(2))}}
 		keyboard.l().onPressDo{if (marco2.movimiento()){
 					if (not (marco1.position()==marco2.position())) {
-						quienJugador2 = self.escogerNave(marco2)
+						self.escogerNave(marco2,jugador2)
 						jugador2Ok = true
 						if (self.seleccionNavesOk()){batalla.iniciar()}
 					}}
@@ -189,7 +192,7 @@ object colisiones
 			game.onCollideDo(jugador.nave(),{objeto => objeto.interaccionCon(jugador)})
 			game.onTick(100,"validarEnergia",{=>reguladorDeEnergia.validarEnergia(jugador)})
 		}
-		game.onTick(100,"validarMuerte",{=>final.validarVida() final.validarVida2()})
+		game.onTick(100,"validarMuerte",{=>final.validarVida(jugadores)})
 	}
 }
 
@@ -236,41 +239,42 @@ object batalla
 		jugador1.controles()
 		jugador2.controles()
 		colisiones.validar()
+		final.escenario(escenarioElegido)
 		
 		
 	}
 	
 	method asignarNaves(){
 		jugador1.asignarNave()
-		jugador2.asignarNave()
-		
+		jugador2.asignarNave()		
 	}
 }
 object final
-{
+{	
+	var property escenario
 	var final
-	var check = 0
-	method finalizarBatalla(){
+	
+	method finalizarBatalla(escenarioFin){
 		game.clear()
 		game.addVisual(final)
+		escenarioFin.sonidoDeFondo().stop()
 		self.iniciar()
 	}
+	
 	// IMPORTANTE unificar validar vida, tiene que ser uno solo y el jugador/imagen sea por parametro
-	method validarVida() {
-		check = jugador1.vidas()
-		if (check <= 0){
-			final = new Fondo(image="final2.png")
-			self.finalizarBatalla()
+	//Modificado
+	method validarVida(jugadores) {
+		if (self.muerto(jugadores)){
+			jugadores.remove(jugadores.find({jugador=>jugador.vidas()<=0}))
+			final = new Fondo(image="final"+self.win(jugadores.get(0)))
+			self.finalizarBatalla(escenario)
 		}
 		}
-		// IMPORTANTE unificar validar vida, tiene que ser uno solo y el jugador/imagen sea por parametro
-  	 method validarVida2() {
-		check = jugador2.vidas()
-		if (check <= 0){
-			final = new Fondo(image="final1.png")
-			self.finalizarBatalla()
-		}
-}
+		
+	method muerto(jugadores)=not jugadores.filter({jugador=>jugador.vidas()<=0}).isEmpty()//Controla muertos, usa colecciones
+	
+	method win(jugador)=jugador.toString().drop(7)+".png"//Asigna número jugador ganador
+
 	method iniciar(){
 		self.reiniciar()
 		keyboard.enter().onPressDo{portada.iniciar()}
