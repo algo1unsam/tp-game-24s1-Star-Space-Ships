@@ -117,7 +117,7 @@ class OrbeArma inherits OrbeEnergia{
 	
 	override method recarga(jugador)
 	{
-		//Colecciones
+		////Colecciones
 		if(jugador.nave().armamento().contains(self.arma())){
 			self.recargarArma(jugador.nave().armamento().find({arma=>arma.toString().equals(self.arma())}))
 			
