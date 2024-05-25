@@ -7,7 +7,8 @@ import extras.*
 //JUGADORES
 class Jugador
 {
-	var property nave
+	var property nave=null
+	var property naveSeleccionada=false
 	var property vidas = 100
 	var property energia = 100
 	method direccionInicial()
@@ -84,9 +85,10 @@ class Nave
 	var property armaActual=armamento.last()
 	var property jugador
 	
+	
 	method nombre()
 	
-	method image()= self.nombre() + direccion.nombre() /* + estado.nombre()*/ + ".png"
+	method image()= self.nombre() + direccion.nombre() + ".png"
 	
 	method moverDerecha()
 	{	

@@ -2,6 +2,7 @@ import wollok.game.*
 import naves.*
 import pantallas.*
 import extras.*
+import enemigo.*
 
 class Fondo{
 	const property position = game.origin()
@@ -51,7 +52,7 @@ class Escenario{
 	var property position
 	var property image
 	var property sonidoDeFondo
-	var property escenario
+	
 }
 
 object portada{
@@ -81,10 +82,10 @@ object instrucciones{
 object seleccionEscenarios{
 	var property cualFondo
 	const property marco3 = new Marco(position = game.at(2,3), image = "marco3.png", x1 = 2, x2 = 16)
-	method space()		  = new Escenario(escenario = new NivelUno(), position = game.at(2,3), image = "spaceSmall.png", sonidoDeFondo = game.sound("track1.mp3") )
-	method clouds()	  = new Escenario(escenario = new NivelDos(), position = game.at(6,3), image = "cloudsSmall.png", sonidoDeFondo = game.sound("track2.mp3"))
-	method pinkNebula()	  = new Escenario(escenario = new NivelTres(), position = game.at(10,3), image = "pinknebulaSmall.png", sonidoDeFondo = game.sound("track3.mp3"))
-	method futuro() 	  = new Escenario(escenario = new NivelCuatro(), position = game.at(14,3), image = "futureSmall.png", sonidoDeFondo = game.sound("track4.mp3"))
+	method space()		  = new Escenario( position = game.at(2,3), image = "spaceSmall.png", sonidoDeFondo = game.sound("track1.mp3") )
+	method clouds()	  = new Escenario( position = game.at(6,3), image = "cloudsSmall.png", sonidoDeFondo = game.sound("track2.mp3"))
+	method pinkNebula()	  = new Escenario( position = game.at(10,3), image = "pinknebulaSmall.png", sonidoDeFondo = game.sound("track3.mp3"))
+	method futuro() 	  = new Escenario( position = game.at(14,3), image = "futureSmall.png", sonidoDeFondo = game.sound("track4.mp3"))
 	
 	method iniciar(){
 		game.clear()
@@ -142,11 +143,17 @@ object seleccionNaves{
 		game.addVisual(marco2)
 	}
 
-	method escogerNave(_marco,playerSelecc){
-		const nave=game.uniqueCollider(_marco)
-		_marco.bloquearMovimiento()
+	method escogerNave(_marco,playerSelecc){//unificado
+		
+		const nave=game.uniqueCollider(_marco)	
+	
+		if (not (marco1.position()==marco2.position())) {
+		 _marco.bloquearMovimiento()
 		 playerSelecc.nave(nave)
 		 nave.jugador(playerSelecc)
+		 playerSelecc.naveSeleccionada(true)
+		 }	 
+		 self.navesSeleccionadas()
 	}
 	
 	
@@ -154,32 +161,19 @@ object seleccionNaves{
 		keyboard.enter().onPressDo{self.iniciar()}
 		keyboard.a().onPressDo{if (marco1.movimiento()){marco1.irALosLados(marco1.position().left(2))}	}
 		keyboard.d().onPressDo{if (marco1.movimiento()) {marco1.irALosLados(marco1.position().right(2))}}
-		keyboard.e().onPressDo{if (marco1.movimiento()){
-					if (not (marco1.position()==marco2.position())) {
-						self.escogerNave(marco1,jugador1)
-						jugador1Ok = true
-						if (self.seleccionNavesOk()){batalla.iniciar()}
-					}}
+		keyboard.e().onPressDo{if (marco1.movimiento()){self.escogerNave(marco1,jugador1)}}
 						//IMPORTANTE method con parametros para elección de pjs
-						//Modificado?
-		}
-		
+						//Modificado	
 		keyboard.left().onPressDo{if (marco2.movimiento()) {marco2.irALosLados(marco2.position().left(2))}}
 		keyboard.right().onPressDo{if (marco2.movimiento()) {marco2.irALosLados(marco2.position().right(2))}}
-		keyboard.l().onPressDo{if (marco2.movimiento()){
-					if (not (marco1.position()==marco2.position())) {
-						self.escogerNave(marco2,jugador2)
-						jugador2Ok = true
-						if (self.seleccionNavesOk()){batalla.iniciar()}
-					}}
-					//IMPORTANTE method con parametros para elección de pjs
-			
+		keyboard.l().onPressDo{if (marco2.movimiento()){self.escogerNave(marco2,jugador2)}}
+					
 		}
-	}
+		
+	method navesSeleccionadas()=if(self.seleccionNavesOk()){batalla.iniciar()}else{}
 	
-	method seleccionNavesOk(){
-		return (jugador1Ok and jugador2Ok)
-	}	
+	method seleccionNavesOk()= jugador1.naveSeleccionada() and jugador2.naveSeleccionada()
+		
 }
 
 
@@ -212,7 +206,7 @@ object visualesGeneral
 		var time = 5000
 		
 		game.schedule(time,{new OrbeEnergia().agregarOrbeP1() new OrbeEnergia().agregarOrbeP2()
-			game.schedule(time*2,{new OrbeRafaga().agregarOrbeP1() new OrbeRafaga().agregarOrbeP2()
+			game.schedule(time*2,{new OrbeRafaga().agregarOrbeP1() new OrbeRafaga().agregarOrbeP2() /*new Enemigo(jugador=jugador2).iniciar()*/
 				game.schedule(time*3,{new OrbeMisil().agregarOrbeP1() new OrbeMisil().agregarOrbeP2()})
 			})
 			

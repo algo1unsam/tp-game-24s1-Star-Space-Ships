@@ -27,7 +27,7 @@ object boundsP2 inherits Bounds{
 		return objeto.position().x()>10	
 	}
 }
-
+/* 
 class Nivel{
 	
 }
@@ -52,3 +52,4 @@ class NivelTres inherits Nivel {
 class NivelCuatro inherits Nivel {
 	
 }
+*/

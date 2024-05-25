@@ -41,7 +41,7 @@ object derecha
 	method nombre() = "der"
 	method comportamientoDireccional(disparo){disparo.comportamientoDerecha()}
 	method repelerADireccionOpuesta(personaje){personaje.moverIzquierda()}
-	method repeler(personaje){personaje.moverDerecha()}
+	method mover(personaje){personaje.moverDerecha()}
 	
 }
 object izquierda
@@ -49,7 +49,15 @@ object izquierda
 	method nombre() = "izq"
 	method comportamientoDireccional(disparo){disparo.comportamientoIzquierda()}
 	method repelerADireccionOpuesta(personaje){personaje.moverDerecha()}
-	method repeler(personaje){personaje.moverIzquierda()}
+	method mover(personaje){personaje.moverIzquierda()}
+}
+
+object arriba{
+	method mover(personaje){personaje.moverArriba()}
+}
+
+object abajo{
+	method mover(personaje){personaje.moverAbajo()}
 }
 
 class OrbeEnergia

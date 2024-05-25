@@ -212,7 +212,7 @@ class Rafaga inherits Armamento{
 
 class Misil inherits Armamento{
 	
-	var property contador = 6
+	var property contador = 3
 	var cooldown = 1
 	
 	override method image(_chara)="Misil"+_chara.direccion()+".png"
@@ -328,6 +328,11 @@ object especialNave3 inherits Armamento
 		self.dispararProyectil(_chara,proyectil1)
 		self.dispararProyectil(_chara,proyectil2)
 	}
+}
+
+object armamentoEnemigo inherits Armamento{
+	
+	
 }
 
 object rafaga inherits Rafaga{
