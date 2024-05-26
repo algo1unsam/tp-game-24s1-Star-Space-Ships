@@ -193,7 +193,7 @@ object colisiones
 			game.onCollideDo(jugador.nave(),{objeto => objeto.interaccionCon(jugador)})
 			game.onTick(100,"validarEnergia",{=>reguladorDeEnergia.validarEnergia(jugador)})
 		}
-		game.onTick(100,"validarMuerte",{=>final.muertos(jugadores)})
+		game.onTick(100,"validarMuerte",{=>if(final.muertos(jugadores)){final.remover(jugadores)}})
 	}
 }
 
@@ -217,7 +217,7 @@ object visualesGeneral
 		var time = 5000
 		
 		game.schedule(time,{new OrbeEnergia().agregarOrbeP1() new OrbeEnergia().agregarOrbeP2()
-			game.schedule(time*2,{new OrbeRafaga().agregarOrbeP1() new OrbeRafaga().agregarOrbeP2() self.iniciarEnemigos()
+			game.schedule(time*2,{new OrbeRafaga().agregarOrbeP1() new OrbeRafaga().agregarOrbeP2() //self.iniciarEnemigos()
 				game.schedule(time*3,{new OrbeMisil().agregarOrbeP1() new OrbeMisil().agregarOrbeP2()})
 			})
 			
@@ -269,7 +269,7 @@ object final
 	// IMPORTANTE unificar validar vida, tiene que ser uno solo y el jugador/imagen sea por parametro
 	//Modificado
 	method remover(jugadores) {
-		if (not self.elMuerto(jugadores).esEnemigo()){
+		if (not self.elMuerto(jugadores).nave().esEnemigo()){
 			jugadores.remove(self.elMuerto(jugadores))
 			final = new Fondo(image="final"+self.win(jugadores.get(0)))
 			self.finalizarBatalla(escenario)

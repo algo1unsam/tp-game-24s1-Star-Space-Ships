@@ -20,6 +20,7 @@ class Jugador
 		nave.position(self.posicionInicial())
 		nave.direccion(self.direccionInicial())
 	}
+	
 	method recibeDanio(danio)
 	{
 		vidas -= danio
@@ -84,6 +85,8 @@ class Nave
 	var property armamento
 	var property armaActual=armamento.last()
 	var property jugador
+	
+	
 	method esEnemigo()=false
 	
 	

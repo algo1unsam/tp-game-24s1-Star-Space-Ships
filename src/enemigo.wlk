@@ -9,6 +9,7 @@ class Enemigo inherits Nave(armamento=[armamentoEnemigo]){
 	
 	var enemigo
 	var property vidas = 30
+	var property nave=self
 	override method nombre()="Enemigo_"
 	override method image()= self.toString().drop(6)+ direccion.nombre() + ".png"
 	override method esEnemigo()=true
@@ -23,7 +24,9 @@ class Enemigo inherits Nave(armamento=[armamentoEnemigo]){
 		vidas -= danio
 	}
     
-	
+	method vida(){
+		vidas=30
+	}
 	method seleccionarEnemigo()= if(jugador==jugador1){enemigo= jugador2} else {enemigo= jugador1}
 	
 	method seleccionarDireccion(){direccion=jugador.direccionInicial()}
@@ -32,8 +35,10 @@ class Enemigo inherits Nave(armamento=[armamentoEnemigo]){
 		self.seleccionarEnemigo()
 		self.seleccionarDireccion()
 		self.posicionar()
+		self.vida()
 		colisiones.jugadores().add(self)
 		game.addVisual(self)
+		
 		self.perseguir()
 	}
 	
