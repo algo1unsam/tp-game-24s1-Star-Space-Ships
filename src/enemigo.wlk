@@ -5,47 +5,62 @@ import proyectiles.*
 import niveles.*
 
 
-class Enemigo inherits Nave(armamento=[armamentoEnemigo]){
+class Enemigo inherits Jugador{
+	
+	method direccionInicial(){}
+	method posicionInicial(){}
+	method controles(){}
+	
+	
+	 override method recibeDanio(danio)
+	{
+		vidas -= danio
+	}	
+	
+	method setearVidas(){
+		vidas=30
+	}
+	
+	method iniciarEnemigo(jugadorEnemigo){
+		nave=new naveEnemigo(jugador=self,enemigo=jugadorEnemigo)		
+		nave.jugador().setearVidas()
+		nave.iniciar()
+		
+	}
+}
+
+class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
+ {
 	
 	var enemigo
-	var property vidas = 30
-	var property nave=self
 	override method nombre()="Enemigo_"
-	override method image()= self.toString().drop(6)+ direccion.nombre() + ".png"
+	override method image()= self.toString().drop(10)+ direccion.nombre() + ".png"
 	override method esEnemigo()=true
     
     method randomY() = 0.randomUpTo(game.height())
-    method x()=if(enemigo==jugador1){return 20}else{return 0}
+    method x()=if(enemigo==jugador1){return jugador2.nave().position().x()}else{jugador1.nave().position().x()}
     //method esEnemigo()=true
-    method posicionar(){position=game.at(jugador.nave().position().x(),0)}
+    method posicionar(){position=game.at(self.x(),0)}
     
-    method recibeDanio(danio)
-	{
-		vidas -= danio
-	}
-    
-	method vida(){
-		vidas=30
-	}
-	method seleccionarEnemigo()= if(jugador==jugador1){enemigo= jugador2} else {enemigo= jugador1}
+   method pantallaJugador()=if(enemigo==jugador1){return jugador2.direccionInicial()}else{jugador1.direccionInicial()}
 	
-	method seleccionarDireccion(){direccion=jugador.direccionInicial()}
+	method seleccionarDireccion(){direccion=self.pantallaJugador()}
+	
+	method nuevoEnemigo()=if(enemigo==jugador1){jugador2}else{jugador1}
 	
 	method iniciar(){
-		self.seleccionarEnemigo()
+		
 		self.seleccionarDireccion()
 		self.posicionar()
-		self.vida()
-		colisiones.jugadores().add(self)
-		game.addVisual(self)
-		
+		game.addVisual(self)	
+		//colisiones.jugadores().add(jugador)
+		colisiones.validarEnemigo(jugador)	
 		self.perseguir()
 	}
 	
 	method perseguir(){
-		game.onTick(1000,self.identity().toString(),({
+		game.onTick(500,self.identity().toString(),({
 			if(self.alineadoX(enemigo.nave())){
-				
 				armaActual.dispararProyectil1(self)
 			}// si se alinea con el jugador, dispara 
 			else{
@@ -54,20 +69,18 @@ class Enemigo inherits Nave(armamento=[armamentoEnemigo]){
 			}
 		}))}
 	
+	method muerte(){
+		game.removeTickEvent(self.identity().toString())
+		game.removeTickEvent(self.identity().toString()+"Validar")
+		self.regenerar()
+	}
+	method regenerar(){game.schedule(10000,{new Enemigo().iniciarEnemigo(self.nuevoEnemigo())})}
 		
 	method haciaJugador(){ //busca la manera mas rapida de ponerse en linea con el jugador
 		if((position.x() - enemigo.nave().position().x()).abs() >= (position.y() - enemigo.nave().position().y()).abs())
 			{return self.direccionY()}	
 		else{return self.direccionX()}
 		}
-	/* 	
-	method disparaHaciaJugador(){ //busca la manera mas rapida de ponerse en linea con el jugador
-		if((self.position().x() - jugador.position().x()).abs() == 0){
-			return self.direccionY()
-		}
-		else{return self.direccionX()}		
-	}
-	*/
 	
 	method direccionX(){
 		if(position.x() > enemigo.nave().position().x()){

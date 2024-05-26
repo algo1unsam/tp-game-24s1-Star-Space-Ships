@@ -10,6 +10,7 @@ class Disparo
 	method etiquetaTickMovement() = "mover"+self.toString()  
 	method image() = imagen
 	method danio() = 10
+	method tieneVida()=false
 	method haceDanio(jugador)
 	{
 		jugador.recibeDanio(self.danio())
@@ -18,6 +19,8 @@ class Disparo
 	{
 		self.haceDanio(jugador)
 	}
+	
+
 	method sonido(sonidoDeFondo)
 	{
 		game.sound(sonidoDeFondo).shouldLoop(false)
@@ -32,21 +35,26 @@ class Disparo
 	}
 	
 	method moverIzq()
-	{
+	{ 	
 		position = self.position().left(1)
+		
+		
 	}
 	method moverDer()
 	{
 		position = self.position().right(1)
+		
 	}
 	
 	method moverArriba()
 	{
 		position = self.position().up(1)
+		
 	}
 	method moverAbajo()
 	{
 		position = self.position().down(1)
+		
 	}
 	
 	
@@ -57,7 +65,7 @@ class Disparo
 		game.removeVisual(self)
 	}
 	
-	//Si un tiro no impacta, se autodestruye en 1000 ticks
+	//Si un tiro no impacta, se autodestruye en 1500 ticks
 	method automaticSelfDestruction()
 	{
 			game.schedule(1500,{self.detenerMovimiento()})
@@ -67,10 +75,12 @@ class Disparo
 	method evaluarComportamiento(_chara)
 	{
 		_chara.direccion().comportamientoDireccional(self)
+		
 	}
 	method comportamientoIzquierda()
 	{
 		game.onTick(50,self.etiquetaTickMovement(),{=> self.moverIzq()})
+		
 	}
 	method comportamientoDerecha()
 	{
@@ -146,25 +156,28 @@ class DisparoEspecial inherits Disparo{
 
 //Armas
 class Armamento
-{
+{	
+	var cooldown=1
 	method image(_chara) = 	_chara.nombre() + "spell_" + _chara.direccion().nombre() + ".png"
 	method dispararProyectil(_chara,proyectil)
 	{
 		proyectil.colocarProyectil(_chara)
 		proyectil.automaticSelfDestruction()
-		//game.schedule(100,{=>_chara.estado(reposo)})
 	}
 	
 	method dispararProyectil1(_chara)
 	{
-		const proyectil = new Disparo(position = _chara.position(),imagen=self.image(_chara))
-		self.dispararProyectil(_chara,proyectil)
+		self.dispararProyectil(_chara,new Disparo(position = _chara.position(),imagen=self.image(_chara)))
 	}
+	
+	//Controla limpieza y apuntador de coleccion armamento durante la ejecución
+	method notCooldown(nave)=if(cooldown==0){}else{nave.armamento().remove(nave.armamento().last())
+												   nave.armaActual(nave.armamento().last())}
 }
 
 class Rafaga inherits Armamento{
-	var property carga = 18
-	var cooldown = 1
+	var property carga = 12
+	
 	
 	
 	method balaInit(nave)=if(nave.direccion()==derecha){return new Disparo(position=nave.position().right(1),imagen=self.image(nave))}
@@ -190,8 +203,7 @@ class Rafaga inherits Armamento{
 			})
 			}
 			else{
-				nave.armamento().remove(nave.armamento().last())
-				nave.armaActual(nave.armamento().last())
+				self.notCooldown(nave)
 			}
 	}
 	
@@ -212,8 +224,7 @@ class Rafaga inherits Armamento{
 
 class Misil inherits Armamento{
 	
-	var property contador = 3
-	var cooldown = 1
+	var property carga = 3
 	
 	override method image(_chara)="Misil"+_chara.direccion()+".png"
 	
@@ -224,19 +235,21 @@ class Misil inherits Armamento{
 		if((not self.vacio()) and cooldown == 1){
 			cooldown = 0
 			self.dispararProyectil(nave,self.init(nave))
-			contador = contador - 1
+			carga = carga - 1
 			self._cooldown()
 		}
-		
+		else{
+			self.notCooldown(nave)			
+		}
 	
 	}
+	
 	
 	override method dispararProyectil1(nave){
-		super(nave)
-		//new Armamento().dispararProyectil1(nave)
+		new Armamento().dispararProyectil1(nave)
 	}
 	
-	method vacio(){return contador == 0}
+	method vacio(){return carga == 0}
 	
 	method _cooldown(){
 		game.schedule(2500,{=> cooldown = 1})
@@ -256,6 +269,7 @@ class Explosivo inherits Disparo{
 		game.schedule(600,({self.haceDanio(jugador) game.removeVisual(self)}))	
 			
 	}
+	
 	
 	override method automaticSelfDestruction(){
 		game.schedule(2500,{if(game.allVisuals().contains(self)){self.detenerMovimiento()}})
@@ -282,6 +296,7 @@ class Explosivo inherits Disparo{
 class Explosion {
 	method image(){return "explosion.png"}
 	
+	method interaccionCon(jugador){}
 	method position()=game.origin()
 	
 	method explotar(positionX, positionY){

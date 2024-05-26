@@ -57,10 +57,10 @@ class Escenario{
 
 object portada{
 	const testeo = new Fondo(image="portada.png")
-	const intros = game.sound("track6.mp3")
+	const property intros = game.sound("track6.mp3")
 	method iniciar(){
 		game.addVisual(testeo)
-		keyboard.enter().onPressDo{instrucciones.iniciar(intros)}
+		keyboard.enter().onPressDo{instrucciones.iniciar()}
 		intros.shouldLoop(true)
 		intros.volume(0.5)
 		game.schedule(150, {intros.play()})
@@ -69,8 +69,7 @@ object portada{
 		}
 
 object instrucciones{
-	method iniciar(intro){
-		intro.stop()
+	method iniciar(){
 		game.clear()
 		game.addVisual(new Fondo(image="controles.png"))
 		keyboard.enter().onPressDo{seleccionEscenarios.iniciar()}
@@ -170,7 +169,10 @@ object seleccionNaves{
 					
 		}
 		
-	method navesSeleccionadas()=if(self.seleccionNavesOk()){batalla.iniciar()}else{}
+	method navesSeleccionadas()=if(self.seleccionNavesOk()){
+		portada.intros().stop()
+		batalla.iniciar()
+	}else{}
 	
 	method seleccionNavesOk()= jugador1.naveSeleccionada() and jugador2.naveSeleccionada()
 		
@@ -181,28 +183,33 @@ object seleccionNaves{
 object colisiones
 {	
 	var property jugadores = [jugador1,jugador2]
-	
-	
-	
+		
 	method validar()
-	{   
-		
-		
-		
+	{   			
 		jugadores.forEach{jugador => 
 			game.onCollideDo(jugador.nave(),{objeto => objeto.interaccionCon(jugador)})
 			game.onTick(100,"validarEnergia",{=>reguladorDeEnergia.validarEnergia(jugador)})
 		}
 		game.onTick(100,"validarMuerte",{=>if(final.muertos(jugadores)){final.remover(jugadores)}})
 	}
+	
+	
+	method validarEnemigo(enemigo){
+	        if(game.allVisuals().contains(enemigo.nave())){
+			game.onCollideDo(enemigo.nave(),{objeto => objeto.interaccionCon(enemigo)})
+			}
+		
+		game.onTick(100,enemigo.nave().identity().toString()+"Validar",{=>if(final.muertos([enemigo])){final.remover([enemigo])}})
+	}
+	
 }
 
 
 object visualesGeneral
 {
-	const enemigos=[new Enemigo(jugador=jugador2)]
+
 	
-	method iniciarEnemigos(){enemigos.forEach({enemigo=>enemigo.iniciar()})}
+	
 	method agregar()
 	{
 		const visuales = [jugador1.nave(),jugador2.nave(),vida1,vida2,energia1,energia2,energia1Png,energia2Png]
@@ -217,7 +224,8 @@ object visualesGeneral
 		var time = 5000
 		
 		game.schedule(time,{new OrbeEnergia().agregarOrbeP1() new OrbeEnergia().agregarOrbeP2()
-			game.schedule(time*2,{new OrbeRafaga().agregarOrbeP1() new OrbeRafaga().agregarOrbeP2() //self.iniciarEnemigos()
+			game.schedule(time*2,{new OrbeRafaga().agregarOrbeP1() new OrbeRafaga().agregarOrbeP2() 
+				//new Enemigo().iniciarEnemigo(jugador1) 
 				game.schedule(time*3,{new OrbeMisil().agregarOrbeP1() new OrbeMisil().agregarOrbeP2()})
 			})
 			
@@ -266,24 +274,35 @@ object final
 		self.iniciar()
 	}
 	
+	method limpiarLista(jugadores){
+		jugadores.clear()
+		jugadores.add(jugador1)
+		jugadores.add(jugador2)
+	}
+	
 	// IMPORTANTE unificar validar vida, tiene que ser uno solo y el jugador/imagen sea por parametro
 	//Modificado
 	method remover(jugadores) {
-		if (not self.elMuerto(jugadores).nave().esEnemigo()){
+		
+		var muerto=self.elMuerto(jugadores)
+		
+		if (not muerto.nave().esEnemigo()){
 			jugadores.remove(self.elMuerto(jugadores))
-			final = new Fondo(image="final"+self.win(jugadores.get(0)))
+			final = new Fondo(image="final"+self.win(jugadores))
+			self.limpiarLista(jugadores)
 			self.finalizarBatalla(escenario)
 		}
 		else{
-			jugadores.remove(self.elMuerto(jugadores))
-			game.removeVisual(self.elMuerto(jugadores))
+			muerto.nave().muerte()
+			game.removeVisual(muerto.nave())
+			jugadores.remove(muerto)
 		}
 	}
 	
 	method elMuerto(jugadores)=jugadores.find({jugador=>jugador.vidas()<=0})	
 	method muertos(jugadores)=not jugadores.filter({jugador=>jugador.vidas()<=0}).isEmpty()//Controla muertos, usa colecciones
 	
-	method win(jugador)=jugador.toString().drop(7)+".png"//Asigna número jugador ganador
+	method win(jugadores)=jugadores.find({jugador=>jugador.vidas()>0}).toString().drop(7)+".png"//Asigna número jugador ganador
 
 	method iniciar(){
 		self.reiniciar()

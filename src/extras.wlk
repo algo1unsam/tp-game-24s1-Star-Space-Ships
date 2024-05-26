@@ -7,6 +7,8 @@ class Vida
 {
 	const jugador
 	method image() = jugador.vidas().toString()+"corazones.png"
+	method tieneVida()=false
+	method esEnemigo()=false
 	method interaccionCon(unJugador){}
 }
 object vida1 inherits Vida(jugador = jugador1) {
@@ -28,6 +30,7 @@ class Energia
 	method position() = life.position().down(1).right(1)
 	method textColor() = color.blanco()
 	method text() = jugador.energia().toString()
+	method esEnemigo()=false
 	method interaccionCon(unJugador){}
 }
 
@@ -69,7 +72,7 @@ class OrbeEnergia
 	method randomY() = 0.randomUpTo(game.height())
 	method image() = "pocion.png"
 	method position() = posicionInicial
-	
+	method esEnemigo()=false
 	
 	method agregarOrbeP1()
 	{
@@ -119,11 +122,11 @@ class OrbeArma inherits OrbeEnergia{
 	override method recarga(jugador)
 	{
 		////Colecciones
-		if(jugador.nave().armamento().contains(self.arma())){
-			self.recargarArma(jugador.nave().armamento().find({arma=>arma.toString().equals(self.arma())}))
-			
+		if(jugador.nave().armamento().last()==self.armaInstancia()){
+			self.recargarArma(jugador.nave().armamento().last())
 		}
-		else{jugador.nave().armamento().add(self.armaInstancia())
+		else{
+		jugador.nave().armamento().add(self.armaInstancia())
 		jugador.nave().armaActual(jugador.nave().armamento().last())
 		}
 		
@@ -133,7 +136,7 @@ class OrbeArma inherits OrbeEnergia{
 
 class OrbeRafaga inherits OrbeArma{
 	
-	override method recarga()=18
+	override method recarga()=12
 	override method image() = "orbe-naranja.png"
 	override method arma()="un/a  Rafaga"
 	override method armaInstancia()=new Rafaga()

@@ -23,8 +23,9 @@ class Jugador
 	
 	method recibeDanio(danio)
 	{
-		vidas -= danio
+		vidas-= danio 
 	}
+
 	method gastarEnergia(gasto)
 	{
 		energia -= gasto
@@ -85,14 +86,16 @@ class Nave
 	var property armamento
 	var property armaActual=armamento.last()
 	var property jugador
-	
-	
+
 	method esEnemigo()=false
 	
 	
 	method nombre()
 	
 	method image()= self.nombre() + direccion.nombre() + ".png"
+	
+	
+	
 	
 	method moverDerecha()
 	{	
