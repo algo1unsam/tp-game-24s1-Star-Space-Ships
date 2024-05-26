@@ -2,18 +2,26 @@ import wollok.game.*
 import extras.*
 import naves.*
 import proyectiles.*
+import niveles.*
 
 
 class Enemigo inherits Nave(armamento=[armamentoEnemigo]){
 	
 	var enemigo
+	var property vidas = 30
 	override method nombre()="Enemigo_"
 	override method image()= self.toString().drop(6)+ direccion.nombre() + ".png"
+	override method esEnemigo()=true
     
     method randomY() = 0.randomUpTo(game.height())
     method x()=if(enemigo==jugador1){return 20}else{return 0}
     //method esEnemigo()=true
     method posicionar(){position=game.at(jugador.nave().position().x(),0)}
+    
+    method recibeDanio(danio)
+	{
+		vidas -= danio
+	}
     
 	
 	method seleccionarEnemigo()= if(jugador==jugador1){enemigo= jugador2} else {enemigo= jugador1}
@@ -24,6 +32,7 @@ class Enemigo inherits Nave(armamento=[armamentoEnemigo]){
 		self.seleccionarEnemigo()
 		self.seleccionarDireccion()
 		self.posicionar()
+		colisiones.jugadores().add(self)
 		game.addVisual(self)
 		self.perseguir()
 	}

@@ -70,6 +70,7 @@ class OrbeEnergia
 	method image() = "pocion.png"
 	method position() = posicionInicial
 	
+	
 	method agregarOrbeP1()
 	{
 		posicionInicial =game.at(self.randomXP1(),self.randomY())
@@ -97,7 +98,7 @@ class OrbeEnergia
 		self.removerPng(jugador)
 	}
 	method interaccionCon(jugador)
-	{
+	{	if(not jugador.nave().esEnemigo())
 		self.recarga(jugador)
 	}
 	
