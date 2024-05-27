@@ -20,6 +20,17 @@ class Disparo
 		self.haceDanio(jugador)
 	}
 	
+	/*if(game.colliders(self).any({objeto => objeto.golpeable()}))
+			{
+			impacto.impactar(self)
+			self.explotar(self.position().x(), self.position().y())
+			game.removeTickEvent(evento)
+			game.removeVisual(self)
+			}})}*/
+	
+	method impacto(){
+		game.onCollideDo(self,{objeto=>if(objeto.tieneVida()){self.interaccionCon(objeto)}})
+	}
 
 	method sonido(sonidoDeFondo)
 	{
@@ -28,10 +39,13 @@ class Disparo
 	}
 	method colocarProyectil(_chara)
 	{
-		self.evaluarComportamiento(_chara)
+		
 		game.schedule(100,
 			{=>	game.addVisual(self)
-				self.sonido("blaster.mp3")})
+				self.sonido("blaster.mp3")
+			})
+			self.evaluarComportamiento(_chara)	
+		
 	}
 	
 	method moverIzq()

@@ -12,11 +12,6 @@ class Enemigo inherits Jugador{
 	method controles(){}
 	
 	
-	 override method recibeDanio(danio)
-	{
-		vidas -= danio
-	}	
-	
 	method setearVidas(){
 		vidas=30
 	}
@@ -69,6 +64,7 @@ class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
 			}
 		}))}
 	
+	//Muerte del enemigo, remueve perseguir y validar vida de enemigo. Se regenera del otro lado a los 10 seg.
 	method muerte(){
 		game.removeTickEvent(self.identity().toString())
 		game.removeTickEvent(self.identity().toString()+"Validar")
@@ -82,14 +78,14 @@ class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
 		else{return self.direccionX()}
 		}
 	
-	method direccionX(){
+	method direccionX(){									//Devuelve el sentido de la direccion en x
 		if(position.x() > enemigo.nave().position().x()){
 			return izquierda}
 		else{return derecha}
 	}
 		
 	
-	method direccionY(){
+	method direccionY(){									//Idem anterior en y
 		if(position.y() > enemigo.nave().position().y()){
 			return abajo}
 		else{return arriba}

@@ -85,7 +85,7 @@ class Nave
 	var property armamento
 	var property armaActual=armamento.last()
 	var property jugador
-
+	method tieneVida()=true
 	method esEnemigo()=false
 	
 	

@@ -7,7 +7,6 @@ class Vida
 {
 	const jugador
 	method image() = jugador.vidas().toString()+"corazones.png"
-	method tieneVida()=false
 	method esEnemigo()=false
 	method interaccionCon(unJugador){}
 }
@@ -30,6 +29,7 @@ class Energia
 	method position() = life.position().down(1).right(1)
 	method textColor() = color.blanco()
 	method text() = jugador.energia().toString()
+	method tieneVida()=false
 	method esEnemigo()=false
 	method interaccionCon(unJugador){}
 }

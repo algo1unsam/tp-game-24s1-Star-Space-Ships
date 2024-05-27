@@ -107,7 +107,12 @@ object seleccionEscenarios{
 									cualFondo = game.uniqueCollider(marco3)
 									seleccionNaves.iniciar()
 									}}
-									//IMPORTANTE ponerlo dentro de un method
+		//IMPORTANTE ponerlo dentro de un method
+		self.controlMovimiento()
+		
+	}
+	
+	method controlMovimiento(){
 		keyboard.left().onPressDo{if (marco3.movimiento()) {marco3.irALosLados(marco3.position().left(4))}}
 		keyboard.right().onPressDo{if (marco3.movimiento()) {marco3.irALosLados(marco3.position().right(4))}}
 	}
@@ -193,7 +198,6 @@ object colisiones
 		game.onTick(100,"validarMuerte",{=>if(final.muertos(jugadores)){final.remover(jugadores)}})
 	}
 	
-	
 	method validarEnemigo(enemigo){
 	        if(game.allVisuals().contains(enemigo.nave())){
 			game.onCollideDo(enemigo.nave(),{objeto => objeto.interaccionCon(enemigo)})
@@ -225,7 +229,7 @@ object visualesGeneral
 		
 		game.schedule(time,{new OrbeEnergia().agregarOrbeP1() new OrbeEnergia().agregarOrbeP2()
 			game.schedule(time*2,{new OrbeRafaga().agregarOrbeP1() new OrbeRafaga().agregarOrbeP2() 
-				//new Enemigo().iniciarEnemigo(jugador1) 
+				new Enemigo().iniciarEnemigo(jugador1) 
 				game.schedule(time*3,{new OrbeMisil().agregarOrbeP1() new OrbeMisil().agregarOrbeP2()})
 			})
 			
@@ -244,7 +248,6 @@ object batalla
 		self.asignarNaves()
 		game.clear()
 		game.addVisual(fondoElegido)
-		//game.sound("track0.mp3").pause()
 		fondoElegido.sonido(escenarioElegido.sonidoDeFondo())
 		
 		
@@ -289,17 +292,18 @@ object final
 		if (not muerto.nave().esEnemigo()){
 			jugadores.remove(self.elMuerto(jugadores))
 			final = new Fondo(image="final"+self.win(jugadores))
-			self.limpiarLista(jugadores)
+			self.limpiarLista(jugadores)			
 			self.finalizarBatalla(escenario)
 		}
-		else{
+		else{//Si es enemigo no termina la partida
 			muerto.nave().muerte()
 			game.removeVisual(muerto.nave())
 			jugadores.remove(muerto)
 		}
 	}
 	
-	method elMuerto(jugadores)=jugadores.find({jugador=>jugador.vidas()<=0})	
+	method elMuerto(jugadores)=jugadores.find({jugador=>jugador.vidas()<=0})//seleccional al muerto
+		
 	method muertos(jugadores)=not jugadores.filter({jugador=>jugador.vidas()<=0}).isEmpty()//Controla muertos, usa colecciones
 	
 	method win(jugadores)=jugadores.find({jugador=>jugador.vidas()>0}).toString().drop(7)+".png"//Asigna número jugador ganador
@@ -320,9 +324,9 @@ object final
 		seleccionEscenarios.marco3().liberarMovimiento()
 		seleccionNaves.marco1().liberarMovimiento()
 		seleccionNaves.marco2().liberarMovimiento()
-
-		seleccionNaves.jugador1Ok(baseDeDatos.bjugadorOk())
-		seleccionNaves.jugador2Ok(baseDeDatos.bjugadorOk())
+		
+		jugador1.naveSeleccionada(false)
+		jugador2.naveSeleccionada(false)
 		
 		jugador1.vidas(baseDeDatos.bvida())
 		jugador2.vidas(baseDeDatos.bvida())
