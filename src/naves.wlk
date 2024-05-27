@@ -21,10 +21,9 @@ class Jugador
 		nave.direccion(self.direccionInicial())
 	}
 	
-	method recibeDanio(danio)
-	{
-		vidas-= danio 
-	}
+	method recibeDanio(danio)= if(vidas-danio>=0){vidas-= danio}else{vidas=0} 
+		
+	
 
 	method gastarEnergia(gasto)
 	{
