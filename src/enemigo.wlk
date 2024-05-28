@@ -3,7 +3,7 @@ import extras.*
 import naves.*
 import proyectiles.*
 import niveles.*
-
+import armas.*
 
 class Enemigo inherits Jugador{
 	
@@ -34,14 +34,13 @@ class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
     
     method randomY() = 0.randomUpTo(game.height())
     method x()=if(enemigo==jugador1){return jugador2.nave().position().x()}else{jugador1.nave().position().x()}
-    //method esEnemigo()=true
     method posicionar(){position=game.at(self.x(),0)}
     
    method pantallaJugador()=if(enemigo==jugador1){return jugador2.direccionInicial()}else{jugador1.direccionInicial()}
 	
 	method seleccionarDireccion(){direccion=self.pantallaJugador()}
 	
-	method nuevoEnemigo()=if(enemigo==jugador1){jugador2}else{jugador1}
+	method nuevoEnemigo()=if(enemigo==jugador1){return jugador1}else{return jugador2}
 	
 	method iniciar(){
 		

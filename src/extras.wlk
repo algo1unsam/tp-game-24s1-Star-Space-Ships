@@ -2,6 +2,7 @@ import wollok.game.*
 import naves.*
 import niveles.*
 import proyectiles.*
+import armas.*
 
 class Vida
 {
@@ -78,11 +79,20 @@ class OrbeEnergia
 	{
 		posicionInicial =game.at(self.randomXP1(),self.randomY())
 		game.addVisual(self)
+		game.schedule(7000,{self.quitarOrbe(jugador1)})
 	}
 	
 	method agregarOrbeP2(){
 		posicionInicial =game.at(self.randomXP2(),self.randomY())
 		game.addVisual(self)
+		game.schedule(7000,{self.quitarOrbe(jugador2)})
+	}
+	
+	method quitarOrbe(pantallaJugador){
+		if(game.allVisuals().contains(self)){
+			game.removeVisual(self)
+			self.regenerarOrbe(pantallaJugador)
+		}
 	}
 	
 	method regenerarOrbe(pantallaJugador)
@@ -162,6 +172,21 @@ class OrbeMisil inherits OrbeArma{
 		game.schedule(30000,{=>self.orbeJugador(pantallaJugador)})
 	}
 }
+
+class OrbeDirigido inherits OrbeArma{
+	
+	override method recarga()=1
+	override method image() = "orbe-dirigido.png"
+	override method arma()="un/a  ArmaTeledirigida"
+	override method armaInstancia()=new ArmaTeledirigida()
+	
+	
+	override method regenerarOrbe(pantallaJugador)
+	{
+		game.schedule(40000,{=>self.orbeJugador(pantallaJugador)})
+	}
+}
+
 
 object reguladorDeEnergia
 {

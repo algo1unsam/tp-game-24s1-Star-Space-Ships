@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="assetsSonidos"/>
-	<classpathentry kind="src" path="assetsFondos"/>
-	<classpathentry kind="src" path="assetsNaves"/>
-	<classpathentry kind="src" path="assetsOrbes"/>
-	<classpathentry kind="src" path="assetsProyectiles"/>
-	<classpathentry kind="src" path="assetsMenu"/>
-	<classpathentry kind="src" path="assetsExtras"/>
-	<classpathentry kind="src" path="assetsPantallas"/>
+	<classpathentry kind="src" path="assets"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="lib" path="src/orbe-dirigido.png"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

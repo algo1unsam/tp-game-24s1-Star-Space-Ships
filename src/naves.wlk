@@ -3,6 +3,7 @@ import proyectiles.*
 import pantallas.*
 import niveles.*
 import extras.*
+import armas.*
 
 //JUGADORES
 class Jugador
