@@ -168,4 +168,87 @@ class DisparoEspecial inherits Disparo{
 }
 
 
-//Armas
+class ProyectilTeledirigido inherits Disparo {
+   
+   method colocarProyectil(_chara)
+	{	
+		game.schedule(100,
+			{=>	game.addVisual(self)
+				self.sonido("blaster.mp3")
+			})
+			self.seguir(self.seleccionarEnemigo(_chara).nave())	
+	}
+    
+	method seguir(enemigo){				
+		game.onTick(50,self.identity().toString(),{self.teledirigido(enemigo)})
+	}
+	
+	override method automaticSelfDestruction(){
+		game.schedule(2000,{if(game.allVisuals().contains(self)){self.detenerMovimiento()}})
+	}
+	
+	override method interaccionCon(jugador)	
+		{
+			self.haceDanio(jugador)
+			game.removeTickEvent(self.identity().toString())
+			game.removeVisual(self)	
+		}
+	
+	override method detenerMovimiento(){
+		game.removeTickEvent(self.identity().toString())
+		game.removeVisual(self)
+	}	
+	
+	//Recorre la lista de armamento del enemigo del enemigo (del jugador) y suma los daños
+	method danio(jugador)=self.seleccionarEnemigo(jugador.nave()).nave().armamento().sum({arma=>arma.danioArma()})
+	
+	override method haceDanio(jugador){
+		
+		jugador.recibeDanio(self.danio(jugador))
+	}
+	
+	method seleccionarEnemigo(jugador)=if(jugador.jugador()==jugador1){return jugador2}else{return jugador1}
+	
+	method teledirigido(personaje){
+		
+		if(self.distanciaEnEjeY(personaje) or self.distanciaEnEjeX(personaje)){
+			
+			if(self.distanciaEnEjeY(personaje)){
+				return self.direccionX(personaje).mover(self)
+			} 	
+			else{
+				return self.direccionY(personaje).mover(self)}
+			}
+	   else {
+		   if((self.position().x() - personaje.position().x()).abs() >= (self.position().y() - personaje.position().y()).abs()){
+				return self.direccionY(personaje).mover(self)
+			}
+		   else{
+		   		return self.direccionX(personaje).mover(self)
+		   }
+		}
+	}
+	
+   method distanciaEnEjeX(personaje){
+   		return self.position().x() - personaje.position().x().abs()==0
+   }
+   
+   method distanciaEnEjeY(personaje){
+   	return self.position().y() - personaje.position().y().abs()==0
+   }
+   
+   method direccionX(personaje){
+		if(self.position().x() > personaje.position().x()){
+			return izquierda}
+		else{return derecha}
+		}
+		
+	
+	method direccionY(personaje){
+		if(self.position().y() > personaje.position().y()){
+			return abajo}
+		else{return arriba}
+	}
+}
+
+

@@ -198,6 +198,13 @@ object especialNave3 inherits Armamento
 
 object armamentoEnemigo inherits Armamento{
 	
+	method init(nave)=if(nave.direccion()==derecha){return new Disparo(position=nave.position().right(1),imagen =self.image(nave))}
+	else{return new Disparo(position=nave.position().left(1),imagen =self.image(nave))}
+	
+	override method dispararProyectil1(_chara)
+	{
+		self.dispararProyectil(_chara,self.init(_chara))
+	}
 	
 }
 
@@ -205,19 +212,22 @@ class ArmaTeledirigida inherits Armamento{
 	
 	var property carga = 1
 	
-	method init(nave)=if(nave.direccion()==derecha){return new ProyectilTeledirigido(position=nave.position().right(1),imagen =self.image(nave))}
-	else{return new ProyectilTeledirigido(position=nave.position().left(1),imagen =self.image(nave))}
+	
+	
+	method init(nave)=if(nave.direccion()==derecha){return new ProyectilTeledirigido(position=nave.position().right(1),imagen ="cargaDirigida.png")}
+	else{return new ProyectilTeledirigido(position=nave.position().left(1),imagen ="cargaDirigida.png")}
 	
     method dispararProyectil2(nave){
-		if(not self.vacio() and cooldown == 1){
-			cooldown = 0
+    		if(carga==1){
 			self.dispararProyectil(nave,self.init(nave))//new ProyectilTeledirigido().disparo(direc, personaje)
 			carga = carga - 1
-			self._cooldown()
-		}
-		else{
-			self.notCooldown(nave)			
-		}
+			nave.armamento().remove(nave.armamento().last())
+			nave.armaActual(nave.armamento().last())}
+			else{
+				self.notCoolDown(
+					
+				)
+			}		
 	}
 	
 	method vacio(){return carga == 0}
@@ -228,102 +238,5 @@ class ArmaTeledirigida inherits Armamento{
 	
 	
 	
-}
-
-class ProyectilTeledirigido inherits Disparo {
-    
-   
-    override method image(){return "teledirigido.png"}
-   
-   
-   method colocarProyectil(_chara)
-	{
-		
-		game.schedule(100,
-			{=>	game.addVisual(self)
-				self.sonido("blaster.mp3")
-			})
-			self.seguir(self.seleccionarEnemigo(_chara).nave())
-			//self.evaluarComportamiento(_chara)	
-		
-	}
-    
-	method seguir(enemigo){		
-		
-		game.onTick(50,self.identity().toString(),{self.teledirigido(enemigo)})
-	
-	}
-	
-	override method automaticSelfDestruction(){
-		game.schedule(1500,{if(game.allVisuals().contains(self)){self.detenerMovimiento()}})
-	}
-	
-	override method interaccionCon(jugador)	
-		{
-			self.haceDanio(jugador)
-			game.removeTickEvent(self.identity().toString())
-			game.removeVisual(self)	
-		}
-	
-	override method detenerMovimiento(){
-		game.removeTickEvent(self.identity().toString())
-		game.removeVisual(self)
-	}
-	/* 	
-	method seleccionarEnemigo(personaje){
-		return game.allVisuals().filter({elemento=>elemento.esEnemigo()}).sortedBy(
-			   {enemigoA,enemigoB=>personaje.position().distance(enemigoA.position())<personaje.position().distance(enemigoB.position())}).get(0)
-			
-	}
-	*/
-	method danio(jugador)=self.seleccionarEnemigo(jugador.nave()).nave().armamento().sum({arma=>arma.danioArma()})
-	//Recorre la lista de armamento del enemigo del enemigo es decir del jugador y suma los daños
-	override method haceDanio(jugador){
-		
-		jugador.recibeDanio(self.danio(jugador))
-	}
-	
-	method seleccionarEnemigo(jugador)=if(jugador.jugador()==jugador1){return jugador2}else{return jugador1}
-	
-	method teledirigido(personaje){
-		
-		if(self.distanciaEnEjeY(personaje) or self.distanciaEnEjeX(personaje)){
-			
-			if(self.distanciaEnEjeY(personaje)){
-				return self.direccionX(personaje).mover(self)
-			} 	
-			else{
-				return self.direccionY(personaje).mover(self)}
-			}
-	   else {
-		   if((self.position().x() - personaje.position().x()).abs() >= (self.position().y() - personaje.position().y()).abs()){
-				return self.direccionY(personaje).mover(self)
-			}
-		   else{
-		   		return self.direccionX(personaje).mover(self)
-		   }
-		}
-	}
-	
-   method distanciaEnEjeX(personaje){
-   		return self.position().x() - personaje.position().x().abs()==0
-   }
-   
-   method distanciaEnEjeY(personaje){
-   	return self.position().y() - personaje.position().y().abs()==0
-   }
-   
-   method direccionX(personaje){
-		if(self.position().x() > personaje.position().x()){
-			return izquierda}
-		else{return derecha}
-		}
-		
-	
-	method direccionY(personaje){
-		if(self.position().y() > personaje.position().y()){
-			return abajo}
-		else{return arriba}
-	}
 }
 

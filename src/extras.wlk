@@ -44,6 +44,7 @@ object derecha
 {
 	method nombre() = "der"
 	method comportamientoDireccional(disparo){disparo.comportamientoDerecha()}
+	method nuevaPosicion(personaje){personaje.position().right(1)}
 	method repelerADireccionOpuesta(personaje){personaje.moverIzquierda()}
 	method mover(personaje){personaje.moverDerecha()}
 	
@@ -52,16 +53,18 @@ object izquierda
 {
 	method nombre() = "izq"
 	method comportamientoDireccional(disparo){disparo.comportamientoIzquierda()}
-	method repelerADireccionOpuesta(personaje){personaje.moverDerecha()}
+	method nuevaPosicion(personaje){personaje.position().left(1)}
 	method mover(personaje){personaje.moverIzquierda()}
 }
 
 object arriba{
 	method mover(personaje){personaje.moverArriba()}
+	method nuevaPosicion(personaje){personaje.position().up(1)}
 }
 
 object abajo{
 	method mover(personaje){personaje.moverAbajo()}
+	method nuevaPosicion(personaje){personaje.position().down(1)}
 }
 
 class OrbeEnergia
@@ -176,7 +179,7 @@ class OrbeMisil inherits OrbeArma{
 class OrbeDirigido inherits OrbeArma{
 	
 	override method recarga()=1
-	override method image() = "orbe-dirigido.png"
+	override method image() = "orbeDirigido.png"
 	override method arma()="un/a  ArmaTeledirigida"
 	override method armaInstancia()=new ArmaTeledirigida()
 	
