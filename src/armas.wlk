@@ -7,7 +7,7 @@ import proyectiles.*
 class Armamento
 {	
 	var cooldown=1
-	method image(_chara) = 	_chara.nombre() + "spell_" + _chara.direccion().nombre() + ".png"
+	method image(_chara) = _chara.nombre() + "spell_" + _chara.direccion().nombre() + ".png"
 	method danioArma()=10
 	method dispararProyectil(_chara,proyectil)
 	{
@@ -131,7 +131,7 @@ class Explosivo inherits Disparo{
 		self.evaluarComportamiento(_chara)
 		game.schedule(100,
 			{=>	game.addVisual(self)
-				self.sonido("misil.mp3")})
+				self.sonido("assets/misil.mp3")})
 	}
 	
 	
@@ -145,7 +145,7 @@ class Explosivo inherits Disparo{
 }
 
 class Explosion {
-	method image(){return "explosion.png"}
+	method image(){return "assets/explosion.png"}
 	
 	method interaccionCon(jugador){}
 	method position()=game.origin()
@@ -214,8 +214,8 @@ class ArmaTeledirigida inherits Armamento{
 	
 	
 	
-	method init(nave)=if(nave.direccion()==derecha){return new ProyectilTeledirigido(position=nave.position().right(1),imagen ="cargaDirigida.png")}
-	else{return new ProyectilTeledirigido(position=nave.position().left(1),imagen ="cargaDirigida.png")}
+	method init(nave)=if(nave.direccion()==derecha){return new ProyectilTeledirigido(position=nave.position().right(1),imagen ="Dirigidoderecha.png")}
+	else{return new ProyectilTeledirigido(position=nave.position().left(1),imagen ="Dirigidoizquierda.png")}
 	
     method dispararProyectil2(nave){
     		if(carga==1){
@@ -224,9 +224,7 @@ class ArmaTeledirigida inherits Armamento{
 			nave.armamento().remove(nave.armamento().last())
 			nave.armaActual(nave.armamento().last())}
 			else{
-				self.notCoolDown(
-					
-				)
+				self.notCooldown(nave)
 			}		
 	}
 	

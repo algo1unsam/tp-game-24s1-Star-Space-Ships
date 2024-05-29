@@ -56,8 +56,8 @@ class Escenario{
 }
 
 object portada{
-	const testeo = new Fondo(image="portada.png")
-	const property intros = game.sound("track6.mp3")
+	const testeo = new Fondo(image="assets/portada.png")
+	const property intros = game.sound("assets/track6.mp3")
 	method iniciar(){
 		game.addVisual(testeo)
 		keyboard.enter().onPressDo{instrucciones.iniciar()}
@@ -71,7 +71,7 @@ object portada{
 object instrucciones{
 	method iniciar(){
 		game.clear()
-		game.addVisual(new Fondo(image="controles.png"))
+		game.addVisual(new Fondo(image="assets/controles.png"))
 		keyboard.enter().onPressDo{seleccionEscenarios.iniciar()}
 		
 		
@@ -80,15 +80,15 @@ object instrucciones{
 
 object seleccionEscenarios{
 	var property cualFondo
-	const property marco3 = new Marco(position = game.at(2,3), image = "marco3.png", x1 = 2, x2 = 16)
-	method space()		  = new Escenario( position = game.at(2,3), image = "spaceSmall.png", sonidoDeFondo = game.sound("track1.mp3") )
-	method clouds()	  = new Escenario( position = game.at(6,3), image = "cloudsSmall.png", sonidoDeFondo = game.sound("track2.mp3"))
-	method pinkNebula()	  = new Escenario( position = game.at(10,3), image = "pinknebulaSmall.png", sonidoDeFondo = game.sound("track3.mp3"))
-	method futuro() 	  = new Escenario( position = game.at(14,3), image = "futureSmall.png", sonidoDeFondo = game.sound("track4.mp3"))
+	const property marco3 = new Marco(position = game.at(2,3), image = "assets/marco3.png", x1 = 2, x2 = 16)
+	method space()		  = new Escenario( position = game.at(2,3), image = "assets/spaceSmall.png", sonidoDeFondo = game.sound("assets/track1.mp3") )
+	method clouds()	  = new Escenario( position = game.at(6,3), image = "assets/cloudsSmall.png", sonidoDeFondo = game.sound("assets/track2.mp3"))
+	method pinkNebula()	  = new Escenario( position = game.at(10,3), image = "assets/pinknebulaSmall.png", sonidoDeFondo = game.sound("assets/track3.mp3"))
+	method futuro() 	  = new Escenario( position = game.at(14,3), image = "assets/futureSmall.png", sonidoDeFondo = game.sound("assets/track4.mp3"))
 	
 	method iniciar(){
 		game.clear()
-		game.addVisual(new Fondo(image="escenario.png"))
+		game.addVisual(new Fondo(image="assets/escenario.png"))
 		self.agregarEscenarios()
 		self.agregarTeclas()
 	}
@@ -124,22 +124,22 @@ object seleccionNaves{
 	var property n2 = new Nave2(position=game.at(9,4))
 	var property n3 = new Nave3(position=game.at(11,4))
 	
-	var property marco1 = new Marco(position = game.at(7,4), image = "marco1.png", x1 = 7, x2 = 12)
-	var property marco2 = new Marco(position = game.at(9,4), image = "marco2.png", x1 = 7, x2 = 12)
+	var property marco1 = new Marco(position = game.at(7,4), image = "assets/marco1.png", x1 = 7, x2 = 12)
+	var property marco2 = new Marco(position = game.at(9,4), image = "assets/marco2.png", x1 = 7, x2 = 12)
 	
 	var property jugador1Ok = false
 	var property jugador2Ok = false
 	
 	method iniciar(){
 		game.clear()
-		game.addVisual(new Fondo(image="instrucciones.png"))
+		game.addVisual(new Fondo(image="assets/instrucciones.png"))
 		self.agregarNaves()
 		self.agregarTeclas()
 		
 	}
 	
 	method agregarNaves(){
-		game.addVisual(new Fondo(image="seleccion.png"))
+		game.addVisual(new Fondo(image="assets/seleccion.png"))
 		game.addVisual(n1)
 		game.addVisual(n2)
 		game.addVisual(n3)
@@ -292,7 +292,7 @@ object final
 		
 		if (not muerto.nave().esEnemigo()){
 			jugadores.remove(self.elMuerto(jugadores))
-			final = new Fondo(image="final"+self.win(jugadores))
+			final = new Fondo(image="assets/final"+self.win(jugadores))
 			self.limpiarLista(jugadores)			
 			self.finalizarBatalla(escenario)
 		}
@@ -340,8 +340,8 @@ object  baseDeDatos{
 		method bp2() = new Nave2(position=game.at(9,4),jugador=null)
 		method bp3() = new Nave3(position=game.at(11,4),jugador=null)
 
-		method bmarco1() = new Marco(position = game.at(7,4), image = "marco1.png", x1 = 7, x2 = 12)
-		method bmarco2() = new Marco(position = game.at(9,4), image = "marco2.png", x1 = 7, x2 = 12)
+		method bmarco1() = new Marco(position = game.at(7,4), image = "assets/marco1.png", x1 = 7, x2 = 12)
+		method bmarco2() = new Marco(position = game.at(9,4), image = "assets/marco2.png", x1 = 7, x2 = 12)
 		
 		method bjugadorOk() = false
 		

@@ -29,16 +29,16 @@ class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
 	
 	var enemigo
 	override method nombre()="Enemigo_"
-	override method image()= self.toString().drop(10)+ direccion.nombre() + ".png"
+	override method image()= "assets/"+self.toString().drop(10)+ direccion.nombre() + ".png"
 	override method esEnemigo()=true
     
    // method randomY() = 0.randomUpTo(game.height())
    
-   method x()=if(enemigo==jugador1){return jugador2.nave().position().x()}else{jugador1.nave().position().x()}
+    method x()=if(enemigo==jugador1){return jugador2.nave().position().x()}else{jugador1.nave().position().x()}
    
-   method posicionar(){position=game.at(self.x(),0)}
+    method posicionar(){position=game.at(self.x(),0)}
     
-   method pantallaJugador()=if(enemigo==jugador1){return jugador2.direccionInicial()}else{jugador1.direccionInicial()}
+    method pantallaJugador()=if(enemigo==jugador1){return jugador2.direccionInicial()}else{jugador1.direccionInicial()}
 	
 	method seleccionarDireccion(){direccion=self.pantallaJugador()}
 	
@@ -46,16 +46,17 @@ class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
 	
 	method aliado()=if(enemigo==jugador1){return jugador2}else{ return jugador1}
 	
+	method limitePantallaAliado()=if(self.aliado()==jugador1){jugador1.boundsPlayer().right(self)}else{jugador2.boundsPlayer().left(self)}
+	
 	method alineadoX()=self.position().y() == enemigo.nave().position().y() 		
 	
-	method noHayJugador()=game.getObjectsIn(self.haciaJugador().nuevaPosicion()).contains(self.aliado())
+	method noHayJugador(direction)=not game.getObjectsIn(direction.nuevaPosicion(self)).contains(self.aliado())
 	
 	method iniciar(){
 		
 		self.seleccionarDireccion()
 		self.posicionar()
 		game.addVisual(self)	
-		//colisiones.jugadores().add(jugador)
 		colisiones.validarEnemigo(jugador)	
 		self.perseguir()
 	}
@@ -67,11 +68,14 @@ class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
 				armaActual.dispararProyectil1(self)
 			}// si se alinea con el jugador, dispara 
 			else{
-				//if(self.noHayJugador())
-				self.haciaJugador().mover(self)
+				self.haciaJugador()	
 			}
 		})
 	}
+	
+	method moverse(direccion)=direccion.mover(self)
+	
+	method controlarEje(direccion)=self.noHayJugador(direccion) and self.limitePantallaAliado()
 	
 	
 	//Muerte del enemigo, remueve perseguir y validar vida de enemigo. Se regenera del otro lado a los 10 seg.
@@ -83,12 +87,15 @@ class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
 	
 	
 	method regenerar(){game.schedule(10000,{new Enemigo().iniciarEnemigo(self.nuevoEnemigo())})}
+	
+	method ejeYMasCerca()=(position.x() - enemigo.nave().position().x()).abs() >= (position.y() - enemigo.nave().position().y()).abs()
 		
 	method haciaJugador(){ //busca la manera mas rapida de ponerse en linea con el jugador
-		if((position.x() - enemigo.nave().position().x()).abs() >= (position.y() - enemigo.nave().position().y()).abs())
-			{return self.direccionY()}	
-		else{return self.direccionX()}
+		if(self.ejeYMasCerca() and self.controlarEje(self.direccionY()))
+			{self.moverse(self.direccionY())}	
+		else{if(self.controlarEje(self.direccionX())){self.moverse(self.direccionX())}
 		}
+	}
 	
 	method direccionX(){									//Devuelve el sentido de la direccion en x
 		if(position.x() > enemigo.nave().position().x()){

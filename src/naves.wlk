@@ -92,7 +92,7 @@ class Nave
 	
 	method nombre()
 	
-	method image()= self.nombre() + direccion.nombre() + ".png"
+	method image()= "assets/"+self.nombre() + direccion.nombre() + ".png"
 	
 	
 	

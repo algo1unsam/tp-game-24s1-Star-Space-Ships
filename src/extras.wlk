@@ -7,7 +7,7 @@ import armas.*
 class Vida
 {
 	const jugador
-	method image() = jugador.vidas().toString()+"corazones.png"
+	method image() = "assets/"+jugador.vidas().toString()+"corazones.png"
 	method esEnemigo()=false
 	method interaccionCon(unJugador){}
 }
@@ -44,7 +44,7 @@ object derecha
 {
 	method nombre() = "der"
 	method comportamientoDireccional(disparo){disparo.comportamientoDerecha()}
-	method nuevaPosicion(personaje){personaje.position().right(1)}
+	method nuevaPosicion(personaje){return personaje.position().right(1)}
 	method repelerADireccionOpuesta(personaje){personaje.moverIzquierda()}
 	method mover(personaje){personaje.moverDerecha()}
 	
@@ -53,18 +53,18 @@ object izquierda
 {
 	method nombre() = "izq"
 	method comportamientoDireccional(disparo){disparo.comportamientoIzquierda()}
-	method nuevaPosicion(personaje){personaje.position().left(1)}
+	method nuevaPosicion(personaje){return personaje.position().left(1)}
 	method mover(personaje){personaje.moverIzquierda()}
 }
 
 object arriba{
 	method mover(personaje){personaje.moverArriba()}
-	method nuevaPosicion(personaje){personaje.position().up(1)}
+	method nuevaPosicion(personaje){return personaje.position().up(1)}
 }
 
 object abajo{
 	method mover(personaje){personaje.moverAbajo()}
-	method nuevaPosicion(personaje){personaje.position().down(1)}
+	method nuevaPosicion(personaje){return personaje.position().down(1)}
 }
 
 class OrbeEnergia
@@ -74,7 +74,7 @@ class OrbeEnergia
 	method randomXP1() = 0.randomUpTo(10)
 	method randomXP2()=10.randomUpTo(20)
 	method randomY() = 0.randomUpTo(game.height())
-	method image() = "pocion.png"
+	method image() = "assets/orbe-azul.png"
 	method position() = posicionInicial
 	method esEnemigo()=false
 	
@@ -150,7 +150,7 @@ class OrbeArma inherits OrbeEnergia{
 class OrbeRafaga inherits OrbeArma{
 	
 	override method recarga()=12
-	override method image() = "orbe-naranja.png"
+	override method image() = "assets/orbe-naranja.png"
 	override method arma()="un/a  Rafaga"
 	override method armaInstancia()=new Rafaga()
 	
@@ -165,7 +165,7 @@ class OrbeRafaga inherits OrbeArma{
 class OrbeMisil inherits OrbeArma{
 	
 	override method recarga()=3
-	override method image() = "orbe-violeta.png"
+	override method image() = "assets/orbe-violeta.png"
 	override method arma()="un/a  Misil"
 	override method armaInstancia()=new Misil()
 	
@@ -179,7 +179,7 @@ class OrbeMisil inherits OrbeArma{
 class OrbeDirigido inherits OrbeArma{
 	
 	override method recarga()=1
-	override method image() = "orbeDirigido.png"
+	override method image() = "assets/orbeDirigido.png"
 	override method arma()="un/a  ArmaTeledirigida"
 	override method armaInstancia()=new ArmaTeledirigida()
 	
@@ -217,7 +217,7 @@ object reguladorDeEnergia
 class EnergiaPng{
 	const position
 	method position()= position.position().left(1)
-	method image()="energiaPng.png"
+	method image()="assets/energiaPng.png"
 	method interaccionCon(unJugador){}
 }
 

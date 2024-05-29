@@ -32,4 +32,17 @@
 		<nature>org.eclipse.xtext.ui.shared.xtextNature</nature>
 		<nature>org.uqbar.project.wollok.wollokNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>.metadata</name>
+			<type>2</type>
+			<location>C:/Users/gonza/git/.metadata</location>
+		</link>
+	</linkedResources>
+	<variableList>
+		<variable>
+			<name>assets</name>
+			<value>file:/C:/Users/gonza/git/tp-game-24s1-Star-Space-Ships/assets</value>
+		</variable>
+	</variableList>
 </projectDescription>

@@ -8,7 +8,7 @@ class Disparo
 	const property imagen
 	
 	method etiquetaTickMovement() = "mover"+self.toString()  
-	method image() = imagen
+	method image() = "assets/"+imagen
 	method danio() = 10
 	method tieneVida()=false
 	method haceDanio(jugador)
@@ -42,7 +42,7 @@ class Disparo
 		
 		game.schedule(100,
 			{=>	game.addVisual(self)
-				self.sonido("blaster.mp3")
+				self.sonido("assets/blaster.mp3")
 			})
 			self.evaluarComportamiento(_chara)	
 		
@@ -156,7 +156,7 @@ class DisparoEspecial inherits Disparo{
 		game.schedule(100,
 			{=>	game.addVisual(arriba)
 				game.addVisual(abajo)
-				self.sonido("blaster.mp3")})
+				self.sonido("assets/blaster.mp3")})
 	}
 	
 	override method automaticSelfDestruction()
@@ -174,7 +174,7 @@ class ProyectilTeledirigido inherits Disparo {
 	{	
 		game.schedule(100,
 			{=>	game.addVisual(self)
-				self.sonido("blaster.mp3")
+				self.sonido("assets/blaster.mp3")
 			})
 			self.seguir(self.seleccionarEnemigo(_chara).nave())	
 	}
