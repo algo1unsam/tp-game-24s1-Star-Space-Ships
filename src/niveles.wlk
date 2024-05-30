@@ -120,9 +120,9 @@ object seleccionEscenarios{
 }
 
 object seleccionNaves{
-	var property n1 = new Nave1(position=game.at(7,4))
-	var property n2 = new Nave2(position=game.at(9,4))
-	var property n3 = new Nave3(position=game.at(11,4))
+	var property n1 = new Nave1(position=game.at(7,4), jugador = "")
+	var property n2 = new Nave2(position=game.at(9,4), jugador = "")
+	var property n3 = new Nave3(position=game.at(11,4), jugador = "")
 	
 	var property marco1 = new Marco(position = game.at(7,4), image = "assets/marco1.png", x1 = 7, x2 = 12)
 	var property marco2 = new Marco(position = game.at(9,4), image = "assets/marco2.png", x1 = 7, x2 = 12)

@@ -153,19 +153,14 @@ class Nave
 }
 
 //Esto no debería llevar super. Las naves no modifican ningún comportamiento heredado.
-// IMPORTANTE usar super
 class Nave1 inherits Nave(armamento=[especialNave1])
 {
-	
 	override method nombre() = "nave1_"
-	
 }
-// IMPORTANTE usar super
 class Nave2 inherits Nave(armamento = [especialNave2])
 {
 	override method nombre() = "nave2_"
 }
-// IMPORTANTE usar super
 class Nave3 inherits Nave(armamento=[especialNave3])
 {
 	override method nombre() = "nave3_"

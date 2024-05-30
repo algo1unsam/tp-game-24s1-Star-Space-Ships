@@ -170,7 +170,7 @@ class DisparoEspecial inherits Disparo{
 
 class ProyectilTeledirigido inherits Disparo {
    
-   method colocarProyectil(_chara)
+   override method colocarProyectil(_chara)
 	{	
 		game.schedule(100,
 			{=>	game.addVisual(self)

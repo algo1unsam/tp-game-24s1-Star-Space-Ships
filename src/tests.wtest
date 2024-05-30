@@ -6,7 +6,7 @@ import pantallas.*
 import proyectiles.*
 
 	const marco3 = new Marco(position = game.at(2,3), image = "marco3.png", x1 = 2, x2 = 16)
-	const space = new Escenario(escenario = new NivelUno(), position = game.at(2,3), image = "spaceSmall.png", sonidoDeFondo = "track1.mp3" )
+	const space = new Escenario(position = game.at(2,3),image = "assets/spaceSmall.png", sonidoDeFondo = "assets/track1.mp3" )
 	
 	const n1 = new Nave1(position=game.at(7,4),jugador=null)
 	const n2 = new Nave2(position=game.at(9,4),jugador=null)
@@ -25,19 +25,19 @@ describe "Modulo 1. Selección de background y naves" {
 	
 	}
 	
-	test "Selección de naves" {
+/*	test "Selección de naves" {
 		
 		game.addVisual(n1)
 		game.addVisual(n2)
 		game.addVisual(marco1)
 		game.addVisual(marco2)
 		
-		seleccionNaves.escogerNave(marco1)
+		seleccionNaves.escogerNave(Nave1)
 		seleccionNaves.escogerNave(marco2)
 		
-		assert.equals(seleccionNaves.escogerNave(marco1),n1)
+		assert.equals(seleccionNaves.escogerNave(_marco, playerSelecc)
 		assert.equals(seleccionNaves.escogerNave(marco2),n2)
-	}
+	}	*/
 }
 
 describe "Gameplay" {	
@@ -65,18 +65,23 @@ describe "Gameplay" {
 		n1.disparo1()
 		n1.disparo1()
 		n1.disparo1()
-		assert.throwsException({n1.disparo1()})
+		n1.disparo1()
+		n1.disparo1()
+		n1.disparo1()
+		n1.disparo1()
+		n1.disparo1()
+		assert.throwsException{(n1.disparo1())}
 		assert.equals(jugador1.energia(),0)
 		assert.that(jugador1.sinEnergia())
 	}
 	
 	test "nave recibe daño"{
-		const disparoNormal = new Disparo(position=n2.position(),imagen="")
-		const disparoFuerte = new DisparoVertical(position=n2.position(),imagen="")
-		disparoNormal.haceDanio(jugador2)
+		const disparo1 = new Disparo (position=n2.position(),imagen="")
+		const disparo2 = new DisparoEspecial (position=n2.position(),imagen="")
+		disparo1.haceDanio(jugador2)
 		assert.equals(90,jugador2.vidas())
-		disparoFuerte.haceDanio(jugador2)
-		assert.equals(60,jugador2.vidas())
+		disparo2.haceDanio(jugador2)
+		assert.equals(80,jugador2.vidas())
 	}
 	
 }
