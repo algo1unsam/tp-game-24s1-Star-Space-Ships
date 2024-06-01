@@ -4,7 +4,7 @@ import naves.*
 import proyectiles.*
 import niveles.*
 import armas.*
-
+//
 class Enemigo inherits Jugador{
 	
 	var property enemigo=null

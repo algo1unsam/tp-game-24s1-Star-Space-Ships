@@ -5,7 +5,7 @@ import niveles.*
 import extras.*
 import armas.*
 
-//JUGADORES
+
 class Jugador
 {	
 	var property nave=null

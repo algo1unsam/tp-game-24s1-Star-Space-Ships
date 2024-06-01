@@ -6,7 +6,7 @@ import pantallas.*
 import proyectiles.*
 import armas.*
 import enemigo.*
-
+//
 	const marco3 = new Marco(position = game.at(2,3), image = "marco3.png", x1 = 2, x2 = 16)
 	const space = new Escenario(position = game.at(2,3),image = "assets/spaceSmall.png", sonidoDeFondo = "assets/track1.mp3" )
 	

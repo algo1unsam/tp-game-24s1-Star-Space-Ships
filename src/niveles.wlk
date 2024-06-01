@@ -3,7 +3,7 @@ import naves.*
 import pantallas.*
 import extras.*
 import enemigo.*
-
+//
 class Fondo{
 	const property position = game.origin()
 	var property image

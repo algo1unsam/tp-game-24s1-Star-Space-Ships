@@ -2,10 +2,12 @@ import wollok.game.*
 import extras.*
 import naves.*
 import niveles.*
+
+
 class Disparo
 {
-	var property position
-	var property imagen
+	var property position=game.origin()
+	var property imagen=""
 	
 	method etiquetaTickMovement() = "mover"+self.toString()  
 	method image() = "assets/"+imagen

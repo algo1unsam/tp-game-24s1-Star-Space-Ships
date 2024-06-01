@@ -3,7 +3,7 @@ import naves.*
 import niveles.*
 import proyectiles.*
 import armas.*
-
+//
 class Vida
 {
 	const jugador

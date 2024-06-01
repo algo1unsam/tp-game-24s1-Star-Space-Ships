@@ -27,3 +27,4 @@ object boundsP2 inherits Bounds{
 		return objeto.position().x()>10	
 	}
 }
+//
