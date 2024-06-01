@@ -23,7 +23,7 @@ import enemigo.*
 	const orbeMisil=new OrbeMisil(posicionInicial=n1.position())
 	const orbeTeledirigido=new OrbeDirigido(posicionInicial=n1.position())
 	
-	const disparoMisil=new Explosivo()
+	
 	
 describe "Modulo 1. Selección de background y naves" {
 
