@@ -4,6 +4,8 @@ import naves.*
 import niveles.*
 import pantallas.*
 import proyectiles.*
+import armas.*
+import enemigo.*
 
 	const marco3 = new Marco(position = game.at(2,3), image = "marco3.png", x1 = 2, x2 = 16)
 	const space = new Escenario(position = game.at(2,3),image = "assets/spaceSmall.png", sonidoDeFondo = "assets/track1.mp3" )
@@ -11,9 +13,17 @@ import proyectiles.*
 	const n1 = new Nave1(position=game.at(7,4),jugador=null)
 	const n2 = new Nave2(position=game.at(9,4),jugador=null)
 	const n3 = new Nave3(position=game.at(11,4),jugador=null)
+	const enemigo=new Enemigo()
 	
 	const marco1 = new Marco(position = game.at(7,4), image = "marco1.png", x1 = 7, x2 = 12)
 	const marco2 = new Marco(position = game.at(9,4), image = "marco2.png", x1 = 7, x2 = 12)
+	
+	const orbeEnergia=new OrbeEnergia(posicionInicial=n1.position())
+	const orbeRafaga=new OrbeRafaga(posicionInicial=n1.position())
+	const orbeMisil=new OrbeMisil(posicionInicial=n1.position())
+	const orbeTeledirigido=new OrbeDirigido(posicionInicial=n1.position())
+	
+	const disparoMisil=new Explosivo()
 	
 describe "Modulo 1. Selección de background y naves" {
 
@@ -25,19 +35,20 @@ describe "Modulo 1. Selección de background y naves" {
 	
 	}
 	
-/*	test "Selección de naves" {
+	test "Selección de naves" {
 		
 		game.addVisual(n1)
 		game.addVisual(n2)
 		game.addVisual(marco1)
 		game.addVisual(marco2)
 		
-		seleccionNaves.escogerNave(Nave1)
-		seleccionNaves.escogerNave(marco2)
 		
-		assert.equals(seleccionNaves.escogerNave(_marco, playerSelecc)
-		assert.equals(seleccionNaves.escogerNave(marco2),n2)
-	}	*/
+		assert.that(marco1.position().equals(n1.position()))//Marco uno sobre nave uno
+		seleccionNaves.escogerNave(marco1, jugador1)//selecciono nave
+		assert.equals(jugador1.nave(),n1)
+		seleccionNaves.escogerNave(marco2,jugador2)
+		assert.equals(jugador2.nave(),n2)
+	}	
 }
 
 describe "Gameplay" {	
@@ -47,7 +58,6 @@ describe "Gameplay" {
 		jugador1.nave(n1)
 		n1.position(game.center())
 		game.addVisual(n1)
-		
 		//Inicializa jugador 2
 		n2.jugador(jugador2)
 		jugador2.nave(n2)
@@ -84,5 +94,123 @@ describe "Gameplay" {
 		assert.equals(80,jugador2.vidas())
 	}
 	
-}
+	test "daño misil"{
+		const disparo1 = new Explosivo (position=n2.position(),imagen="")
+		disparo1.haceDanio(jugador2)
+		assert.that(jugador2.vidas()==70)
+	}
+	
+	test "daño Teledirigido"{
+		const disparo1 = new ProyectilTeledirigido (position=n2.position(),imagen="")
+		n1.armamento().add(new Rafaga(carga=12))
+		n1.armamento().add(new Misil(carga=3))
+		disparo1.haceDanio(jugador2)
+		assert.that(jugador2.vidas()==50)//30 daño misil+10 armamento de nave+10 armamento teledirigido
+	}
+	
+	test "Adquisición armas, recarga orbes y remoción de armas"{
+		
+		//Recarga orbe energía
+		n1.disparo()
+		assert.that(n1.jugador().energia()==90)
+		game.addVisual(orbeEnergia)
+		orbeEnergia.interaccionCon(n1.jugador())
+		assert.that(n1.jugador().energia().equals(100))
+		
+		//Adquiero disparo Rafaga
+		game.addVisual(orbeRafaga)
+		orbeRafaga.interaccionCon(n1.jugador())
+		assert.that(n1.armamento().any({arma=>arma.toString().equals("un/a  Rafaga")}))
+		
+		//Recargo Rafaga
+		assert.that(n1.armaActual().carga().equals(12))
+		game.addVisual(orbeRafaga)
+		orbeRafaga.interaccionCon(n1.jugador())
+		assert.that(n1.armaActual().carga().equals(24))
+		
+		//Adquiero Misil
+		game.addVisual(orbeMisil)
+		orbeMisil.interaccionCon(n1.jugador())
+		assert.that(n1.armaActual().toString().equals("un/a  Misil"))
+		
+		//Recargo Misil
+		assert.that(n1.armaActual().carga().equals(3))
+		game.addVisual(orbeMisil)
+		orbeMisil.interaccionCon(n1.jugador())
+		assert.that(n1.armaActual().carga().equals(6))
+		
+		//Adquiero Teledirigido
+		game.addVisual(orbeTeledirigido)
+		orbeTeledirigido.interaccionCon(n1.jugador())
+		assert.that(n1.armaActual().toString().equals("un/a  ArmaTeledirigida"))
+		
+		//Recargo Teledirigido
+		assert.that(n1.armaActual().carga().equals(1))
+		game.addVisual(orbeTeledirigido)
+		orbeTeledirigido.interaccionCon(n1.jugador())
+		assert.that(n1.armaActual().carga().equals(2))
+		
+		//Descarga y remocion teledirigida
+		assert.that(n1.armaActual().toString().equals("un/a  ArmaTeledirigida"))
+		n1.armaActual().carga(0)
+		n1.armaActual().cooldown(1)
+		n1.armaActual().dispararProyectil2(n1)
+		assert.notThat(n1.armaActual().toString().equals("un/a  ArmaTeledirigida"))
+		
+		//Descarga y remoción misil
+		assert.that(n1.armaActual().toString().equals("un/a  Misil"))
+		n1.armaActual().carga(0)
+		n1.armaActual().cooldown(1)
+		n1.armaActual().dispararProyectil2(n1)
+		assert.notThat(n1.armaActual().toString().equals("un/a  Misil"))
+		
+		//Descarga y remocion rafaga
+		assert.that(n1.armaActual().toString().equals("un/a  Rafaga"))
+		n1.armaActual().carga(0)
+		n1.armaActual().cooldown(1)
+		n1.armaActual().dispararProyectil2(n1)
+		assert.notThat(n1.armaActual().toString().equals("un/a  Rafaga"))	
+	}
+	
+	test "Inicia enemigo, controla enemigo y aliado"{
+		
+		enemigo.iniciarEnemigo(jugador1)
+		assert.that(enemigo.enemigo().equals(jugador1))
+		assert.that(enemigo.nave().aliado().equals(jugador2))
+	}
+	
+	test "Enemigo acorta menor distancia absoluta en eje y"{	
+		
+		n1.position(game.origin())//Jugador en (0,0) enemigo en (15,5)
+		enemigo.iniciarEnemigo(jugador1)
+		enemigo.nave().position(game.at(15,5))
+		assert.that(enemigo.nave().menorDistanciaEjeY())
+		assert.that(enemigo.nave().direccionY().equals(abajo))
+		enemigo.nave().haciaJugador()
+		assert.that(enemigo.nave().position().equals(game.at(15,4)))			
+	}
+	
+	test "Enemigo acorta menor distancia absoluta en eje x"{	
+		
+		n1.position(game.at(7,8))//Jugador en (7,8) enemigo en (12,0)
+		enemigo.iniciarEnemigo(jugador1)
+		enemigo.nave().position(game.at(12,0))
+		assert.notThat(enemigo.nave().menorDistanciaEjeY())
+		assert.that(enemigo.nave().direccionX().equals(izquierda))
+		enemigo.nave().haciaJugador()
+		assert.that(enemigo.nave().position().equals(game.at(11,0)))			
+	}
+	
+	test "enemigo muere"{
+		n2.position(game.at(7,8))//Jugador en (7,8) enemigo en (12,0)
+		enemigo.iniciarEnemigo(jugador1)
+		assert.that(enemigo.nave().position().equals(game.at(7,0)))
+		assert.that(game.allVisuals().contains(enemigo.nave()))
+		enemigo.recibeDanio(30)
+		assert.notThat(game.allVisuals().contains(enemigo.nave()))
+	}
+	
+	
+	}
+	
 

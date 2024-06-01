@@ -27,25 +27,3 @@ object boundsP2 inherits Bounds{
 		return objeto.position().x()>10	
 	}
 }
-/* Lo usabamos solamente para los test, lo quitamos y dejamos comentado
-class Nivel{
-	
-}
-//Nivel 1
-class NivelUno inherits Nivel
-{
-	
-}
-//Nivel 2
-class NivelDos inherits Nivel {
-	
-}
-//Nivel 3
-class NivelTres inherits Nivel {
-	
-}
-//Nivel 4
-class NivelCuatro inherits Nivel {
-	
-}
-*/

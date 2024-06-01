@@ -7,11 +7,12 @@ import armas.*
 
 //JUGADORES
 class Jugador
-{
+{	
 	var property nave=null
 	var property naveSeleccionada=false
 	var property vidas = 100
 	var property energia = 100
+	
 	method direccionInicial()
 	method posicionInicial()
 	method controles()
@@ -22,13 +23,18 @@ class Jugador
 		nave.direccion(self.direccionInicial())
 	}
 	
-	method recibeDanio(danio)= if(vidas-danio>=0){vidas-= danio}else{vidas=0} 
+	method recibeDanio(danio)= if(vidas-danio>0){vidas-= danio}
+	else{
+		vidas=0
+		final.remover(colisiones.jugadores())
+	} 
 		
-	
+	method noHayEnemigo(direction)=not game.getObjectsIn(direction.nuevaPosicion(self)).contains("un/a  Enemigo")
 
 	method gastarEnergia(gasto)
 	{
 		energia -= gasto
+		reguladorDeEnergia.validarEnergia(self)
 	}
 	method sinEnergia() = energia <= 0
 	
@@ -40,11 +46,13 @@ class Jugador
 	method recargaEnergia(orbe) 
 	{
 		energia += orbe
+		reguladorDeEnergia.validarEnergia(self)
 	}
 }
 
 object jugador1 inherits Jugador(nave = null){
 	const property boundsPlayer=boundsP1
+	const property enemigo=jugador2
 	override method posicionInicial() = game.at(0,0)
 	override method direccionInicial() = derecha
 	override method controles()
@@ -63,6 +71,7 @@ object jugador1 inherits Jugador(nave = null){
 object jugador2 inherits Jugador(nave = null){
 	
 	const property boundsPlayer=boundsP2
+	const property enemigo=jugador1
 	override method posicionInicial() = game.at(game.width()-1,0)
 	override method direccionInicial() = izquierda
 	override method controles()

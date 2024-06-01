@@ -67,14 +67,13 @@ object abajo{
 	method nuevaPosicion(personaje){return personaje.position().down(1)}
 }
 
-class OrbeEnergia
-{
-	const energiaQueRestaura = 10
-	var posicionInicial = 0
-	method randomXP1() = 0.randomUpTo(10)
-	method randomXP2()=10.randomUpTo(20)
+class Orbe{
+	
+	var property posicionInicial = 0
+	method randomXP1() = 0.randomUpTo(9)
+	method randomXP2()=11.randomUpTo(20)
 	method randomY() = 0.randomUpTo(game.height())
-	method image() = "assets/orbe-azul.png"
+	method image() 
 	method position() = posicionInicial
 	method esEnemigo()=false
 	
@@ -98,51 +97,75 @@ class OrbeEnergia
 		}
 	}
 	
-	method regenerarOrbe(pantallaJugador)
-	{
-		game.schedule(15000,{=>self.orbeJugador(pantallaJugador)})
-	}
+	method regenerarOrbe(jugador)
 	
-	method removerPng(pantallaJugador) 
+	method removerPng(jugador) 
 	{
 		game.removeVisual(self)
-		self.regenerarOrbe(pantallaJugador)
+		self.regenerarOrbe(jugador)
 	}
 	method recarga(jugador)
-	{
-		jugador.recargaEnergia(energiaQueRestaura)
-		self.removerPng(jugador)
-	}
+
 	method interaccionCon(jugador)
 	{	if(not jugador.nave().esEnemigo())
 		self.recarga(jugador)
 	}
 	
-	method orbeJugador(pantallaJugador)=if(pantallaJugador.nave().position().x()<10){self.agregarOrbeP1()}
-	else self.agregarOrbeP2()
+	method pantallaJugador1(jugador)=jugador.nave().position().x()<10
+	
+	method seleccionPantalla(jugador)=if(self.pantallaJugador1(jugador)){self.agregarOrbeP1()}
+	else {self.agregarOrbeP2()}
+	
+	
+	
 }
 
-class OrbeArma inherits OrbeEnergia{
+class OrbeEnergia inherits Orbe
+{
+	const energiaQueRestaura = 10
+	
+	override method image() = "assets/orbe-azul.png"
+	
+	override method regenerarOrbe(jugador)
+	{
+		game.schedule(15000,{=>self.seleccionPantalla(jugador)})
+	}
+	
+	override method recarga(jugador)
+	{
+		jugador.recargaEnergia(energiaQueRestaura)
+		self.removerPng(jugador)
+	}
+	
+}
+
+class OrbeArma inherits Orbe{
 		
 	method recarga() 
 	method arma()
 	method armaInstancia()
 	
-	method recargarArma(arma){
-		arma.carga(arma.carga()+self.recarga())
-	}
+	method recargarArma(arma)=arma.carga(arma.carga()+self.recarga())
+	
+	method armaEnUso(jugador)=jugador.nave().armamento().last()==self.armaInstancia()
+	
+	method tieneArma(jugador)=jugador.nave().armamento().any({arma=>self.seleccionarArma(arma)})
+	
+	method seleccionarArma(arma)=self.arma().equals(arma.toString())
+	
+	method armaARecargar(jugador)=jugador.nave().armamento().find({arma=>self.seleccionarArma(arma)})
 	
 	override method recarga(jugador)
 	{
 		////Colecciones
-		if(jugador.nave().armamento().last()==self.armaInstancia()){
-			self.recargarArma(jugador.nave().armamento().last())
+		if(self.tieneArma(jugador)){//Si tiene el arma la recarga, caso contrario la añade a la lista cargada y queda como arma actual
+			self.recargarArma(self.armaARecargar(jugador))
 		}
 		else{
 		jugador.nave().armamento().add(self.armaInstancia())
 		jugador.nave().armaActual(jugador.nave().armamento().last())
-		}
-		
+		jugador.nave().armaActual().carga(self.recarga())
+		}	
 		self.removerPng(jugador)
 	}	
 }
@@ -155,9 +178,9 @@ class OrbeRafaga inherits OrbeArma{
 	override method armaInstancia()=new Rafaga()
 	
 	
-	override method regenerarOrbe(pantallaJugador)//Distinto tiempo que el orbe Energia
+	override method regenerarOrbe(jugador)//Distinto tiempo que el orbe Energia
 	{
-		game.schedule(20000,{=>self.orbeJugador(pantallaJugador)})
+		game.schedule(20000,{=>self.seleccionPantalla(jugador)})
 	}
 	
 }
@@ -170,9 +193,9 @@ class OrbeMisil inherits OrbeArma{
 	override method armaInstancia()=new Misil()
 	
 	
-	override method regenerarOrbe(pantallaJugador)
+	override method regenerarOrbe(jugador)
 	{
-		game.schedule(30000,{=>self.orbeJugador(pantallaJugador)})
+		game.schedule(30000,{=>self.seleccionPantalla(jugador)})
 	}
 }
 
@@ -184,9 +207,9 @@ class OrbeDirigido inherits OrbeArma{
 	override method armaInstancia()=new ArmaTeledirigida()
 	
 	
-	override method regenerarOrbe(pantallaJugador)
+	override method regenerarOrbe(jugador)
 	{
-		game.schedule(40000,{=>self.orbeJugador(pantallaJugador)})
+		game.schedule(40000,{=>self.seleccionPantalla(jugador)})
 	}
 }
 

@@ -148,29 +148,29 @@ object seleccionNaves{
 	}
 
 	method escogerNave(_marco,playerSelecc){//unificado
-		
-		const nave=game.uniqueCollider(_marco)	
-	
-		if (not (marco1.position()==marco2.position())) {
+			
+		if (not self.superpuestos()) {
 		 _marco.bloquearMovimiento()
-		 playerSelecc.nave(nave)
-		 nave.jugador(playerSelecc)
+		 playerSelecc.nave(game.uniqueCollider(_marco))
+		 game.uniqueCollider(_marco).jugador(playerSelecc)
 		 playerSelecc.naveSeleccionada(true)
 		 }	 
-		 self.navesSeleccionadas()
+
 	}
+	
+	method superpuestos()=marco1.position()==marco2.position()
 	
 	
 	method agregarTeclas(){
 		keyboard.enter().onPressDo{self.iniciar()}
 		keyboard.a().onPressDo{if (marco1.movimiento()){marco1.irALosLados(marco1.position().left(2))}	}
 		keyboard.d().onPressDo{if (marco1.movimiento()) {marco1.irALosLados(marco1.position().right(2))}}
-		keyboard.e().onPressDo{if (marco1.movimiento()){self.escogerNave(marco1,jugador1)}}
+		keyboard.e().onPressDo{if (marco1.movimiento()){self.escogerNave(marco1,jugador1)self.navesSeleccionadas()}}
 						//IMPORTANTE method con parametros para elección de pjs
 						//Modificado	
 		keyboard.left().onPressDo{if (marco2.movimiento()) {marco2.irALosLados(marco2.position().left(2))}}
 		keyboard.right().onPressDo{if (marco2.movimiento()) {marco2.irALosLados(marco2.position().right(2))}}
-		keyboard.l().onPressDo{if (marco2.movimiento()){self.escogerNave(marco2,jugador2)}}
+		keyboard.l().onPressDo{if (marco2.movimiento()){self.escogerNave(marco2,jugador2) self.navesSeleccionadas()}}
 					
 		}
 		
@@ -189,30 +189,17 @@ object colisiones
 {	
 	var property jugadores = [jugador1,jugador2]
 		
-	method validar()
-	{   			
-		jugadores.forEach{jugador => 
-			game.onCollideDo(jugador.nave(),{objeto => objeto.interaccionCon(jugador)})
-			game.onTick(100,"validarEnergia",{=>reguladorDeEnergia.validarEnergia(jugador)})
-		}
-		game.onTick(100,"validarMuerte",{=>if(final.muertos(jugadores)){final.remover(jugadores)}})
-	}
-	
-	method validarEnemigo(enemigo){
-	        if(game.allVisuals().contains(enemigo.nave())){
-			game.onCollideDo(enemigo.nave(),{objeto => objeto.interaccionCon(enemigo)})
-			}
+	method validar()= jugadores.forEach({jugador =>game.onCollideDo(jugador.nave(),{objeto => objeto.interaccionCon(jugador)})})
 		
-		game.onTick(100,enemigo.nave().identity().toString()+"Validar",{=>if(final.muertos([enemigo])){final.remover([enemigo])}})
-	}
-	
+	method validarEnemigo(enemigo)=game.onCollideDo(enemigo.nave(),{objeto => objeto.interaccionCon(enemigo)})
+				
 }
+	
+
 
 
 object visualesGeneral
-{
-
-	
+{	
 	
 	method agregar()
 	{
@@ -223,18 +210,21 @@ object visualesGeneral
 		}
 		self.agregarOrbes()
 	}
+	
+	
 	method agregarOrbes()
 	{
 		var time = 5000
 		
-		game.schedule(time,{new OrbeEnergia().agregarOrbeP1() new OrbeEnergia().agregarOrbeP2()
-			game.schedule(time*2,{new OrbeRafaga().agregarOrbeP1() new OrbeRafaga().agregarOrbeP2() 
-				new Enemigo().iniciarEnemigo(jugador1) new Enemigo().iniciarEnemigo(jugador2)
-				game.schedule(time*3,{new OrbeMisil().agregarOrbeP1() new OrbeMisil().agregarOrbeP2()})
-				game.schedule(time*4,{new OrbeDirigido().agregarOrbeP1() new OrbeDirigido().agregarOrbeP2()})
-			})
-			
+		game.schedule(time,{new OrbeEnergia().agregarOrbeP1() new OrbeEnergia().agregarOrbeP2()})
+		game.schedule(time*3,{
+			new OrbeRafaga().agregarOrbeP1() 
+			new OrbeRafaga().agregarOrbeP2() 
+			new Enemigo().iniciarEnemigo(jugador1) 
+			new Enemigo().iniciarEnemigo(jugador2)
 		})
+		game.schedule(time*5,{new OrbeMisil().agregarOrbeP1() new OrbeMisil().agregarOrbeP2()})
+		game.schedule(time*8,{new OrbeDirigido().agregarOrbeP1() new OrbeDirigido().agregarOrbeP2()})			
 	}
 }
 
@@ -286,22 +276,13 @@ object final
 	
 	// IMPORTANTE unificar validar vida, tiene que ser uno solo y el jugador/imagen sea por parametro
 	//Modificado
-	method remover(jugadores) {
-		
-		var muerto=self.elMuerto(jugadores)
-		
-		if (not muerto.nave().esEnemigo()){
+	method remover(jugadores) {			
 			jugadores.remove(self.elMuerto(jugadores))
 			final = new Fondo(image="assets/final"+self.win(jugadores))
 			self.limpiarLista(jugadores)			
 			self.finalizarBatalla(escenario)
-		}
-		else{//Si es enemigo no termina la partida
-			muerto.nave().muerte()
-			game.removeVisual(muerto.nave())
-			jugadores.remove(muerto)
-		}
 	}
+	
 	
 	method elMuerto(jugadores)=jugadores.find({jugador=>jugador.vidas()<=0})//seleccional al muerto
 		

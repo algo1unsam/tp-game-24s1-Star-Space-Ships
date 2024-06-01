@@ -1,37 +1,31 @@
 import wollok.game.*
 import extras.*
 import naves.*
-
+import niveles.*
 class Disparo
 {
 	var property position
-	const property imagen
+	var property imagen
 	
 	method etiquetaTickMovement() = "mover"+self.toString()  
 	method image() = "assets/"+imagen
 	method danio() = 10
 	method tieneVida()=false
+	
 	method haceDanio(jugador)
 	{
 		jugador.recibeDanio(self.danio())
 	}
+	
+	
+	
 	method interaccionCon(jugador)
 	{
 		self.haceDanio(jugador)
 	}
 	
-	/*if(game.colliders(self).any({objeto => objeto.golpeable()}))
-			{
-			impacto.impactar(self)
-			self.explotar(self.position().x(), self.position().y())
-			game.removeTickEvent(evento)
-			game.removeVisual(self)
-			}})}*/
+	method muertos()=final.muertos(colisiones.jugadores())//{final.remover(jugadores)}
 	
-	method impacto(){
-		game.onCollideDo(self,{objeto=>if(objeto.tieneVida()){self.interaccionCon(objeto)}})
-	}
-
 	method sonido(sonidoDeFondo)
 	{
 		game.sound(sonidoDeFondo).shouldLoop(false)
@@ -147,8 +141,10 @@ class DisparoDiagonalInferior inherits DisparoDiagonal
 
 class DisparoEspecial inherits Disparo{
 	
-	var property arriba= new DisparoDiagonal(position=self.position(), imagen=self.imagen())
-	var property abajo=new DisparoDiagonalInferior(position=self.position(), imagen=self.imagen())
+	const property arriba= new DisparoDiagonal(position=self.position(), imagen=self.imagen())
+	const property abajo=new DisparoDiagonalInferior(position=self.position(), imagen=self.imagen())
+	
+	//Cambia comportamiento del disparo normal
 	override method colocarProyectil(_chara)
 	{
 		abajo.evaluarComportamiento(_chara)
@@ -160,17 +156,90 @@ class DisparoEspecial inherits Disparo{
 	}
 	
 	override method automaticSelfDestruction()
-	{
+	{//Elimina los dos ticks de movimiento asociados
 			game.schedule(1500,{arriba.detenerMovimiento()
 								abajo.detenerMovimiento()
 			})
 	}
 }
 
+class Explosivo inherits Disparo{
+	
+	
+	override method danio()=30
+	
+	override method interaccionCon(jugador)
+	{	
+		game.removeTickEvent(self.etiquetaTickMovement())	
+		self.explotar(jugador.nave().position().x(),jugador.nave().position().y())
+		game.schedule(600,({self.haceDanio(jugador) game.removeVisual(self)}))	
+			
+	}
+	
+	
+	override method automaticSelfDestruction(){
+		game.schedule(2500,{if(game.allVisuals().contains(self)){self.detenerMovimiento()}})
+	}
+	
+	override method colocarProyectil(_chara)
+	{
+		self.evaluarComportamiento(_chara)
+		game.schedule(100,
+			{=>	game.addVisual(self)
+				self.sonido("assets/misil.mp3")})
+	}
+	
+	
+	method explotar(positionX, positionY){
+		(positionX-2..positionX+2).forEach({n => new Explosion().explotar(n,positionY)})
+		(positionX-1..positionX+1).forEach({n => new Explosion().explotar(n,positionY+1)})
+		(positionX-1..positionX+1).forEach({n => new Explosion().explotar(n,positionY-1)})
+		new Explosion().explotar(positionX, positionY+2)
+		new Explosion().explotar(positionX, positionY-2)
+	}	
+}
+
+class Explosion {
+	method image(){return "assets/explosion.png"}
+	
+	method interaccionCon(jugador){}
+	method position()=game.origin()
+	
+	method explotar(positionX, positionY){
+		game.addVisualIn(self, game.at(positionX,positionY))
+		game.schedule(500,({game.removeVisual(self)}))
+	}
+}
+
 
 class ProyectilTeledirigido inherits Disparo {
+	
+	method seleccionarEnemigo(nave)=nave.jugador().enemigo()
+	
+	method teledirigido(enemigo)=if(self.alineado(enemigo)){self.acortoDistanciaAlineado(enemigo)}else{self.acortoMenorDistanciaAbsoluta(enemigo)}
+	
+	method mayorAbsolutaEnX(enemigo)=(self.position().x() -enemigo.position().x()).abs() >= (self.position().y() - enemigo.position().y()).abs()
+	
+	method acortoMenorDistanciaAbsoluta(enemigo)=if(self.mayorAbsolutaEnX(enemigo)){self.direccionY(enemigo).mover(self)}else{self.direccionX(enemigo).mover(self)}
+	
+	method alineado(enemigo)=self.alineadoY(enemigo) or self.alineadoX(enemigo)	
+	
+	method acortoDistanciaAlineado(enemigo)=if(self.alineadoY(enemigo)){self.direccionX(enemigo).mover(self)}else{self.direccionY(enemigo).mover(self)}
+	
+   method alineadoX(personaje)=self.position().x() - personaje.position().x().abs()==0
    
-   override method colocarProyectil(_chara)
+   method alineadoY(personaje)= self.position().y() - personaje.position().y().abs()==0
+   
+   method direccionX(enemigo)=if(self.aIzquierda(enemigo)){izquierda}else{derecha}
+   
+   method direccionY(enemigo)=if(self.haciaAbajo(enemigo)){abajo}else{ arriba}
+		
+	method haciaAbajo(enemigo)=self.position().y() > enemigo.position().y()
+	
+	method aIzquierda(enemigo)=	self.position().x() > enemigo.position().x()
+  
+  //No tiene comportamiento direccional fijo sigue al enemigo 
+  override method colocarProyectil(_chara)
 	{	
 		game.schedule(100,
 			{=>	game.addVisual(self)
@@ -179,19 +248,21 @@ class ProyectilTeledirigido inherits Disparo {
 			self.seguir(self.seleccionarEnemigo(_chara).nave())	
 	}
     
-	method seguir(enemigo){				
-		game.onTick(50,self.identity().toString(),{self.teledirigido(enemigo)})
+	method seguir(nave){				
+		game.onTick(50,self.identity().toString(),{self.teledirigido(nave)})
 	}
 	
+	//Solo tiene un tiempo en panatalla antes de impactar para que pueda eludirse
 	override method automaticSelfDestruction(){
 		game.schedule(2000,{if(game.allVisuals().contains(self)){self.detenerMovimiento()}})
 	}
 	
 	override method interaccionCon(jugador)	
 		{
-			self.haceDanio(jugador)
 			game.removeTickEvent(self.identity().toString())
 			game.removeVisual(self)	
+			self.haceDanio(jugador)
+			
 		}
 	
 	override method detenerMovimiento(){
@@ -199,56 +270,16 @@ class ProyectilTeledirigido inherits Disparo {
 		game.removeVisual(self)
 	}	
 	
-	//Recorre la lista de armamento del enemigo del enemigo (del jugador) y suma los daños
-	method danio(jugador)=self.seleccionarEnemigo(jugador.nave()).nave().armamento().sum({arma=>arma.danioArma()})
+	//Suma los daños de arma del jugador que o lanzó
+	method danio(jugador)=jugador.nave().armamento().sum({arma=>arma.danioArma()})
 	
 	override method haceDanio(jugador){
-		
-		jugador.recibeDanio(self.danio(jugador))
+		//Pasa como parámetro a daño al jugador que lo lanzó, el enemigo del que recibe daño
+		jugador.recibeDanio(self.danio(jugador.enemigo()))
 	}
 	
-	method seleccionarEnemigo(jugador)=if(jugador.jugador()==jugador1){return jugador2}else{return jugador1}
 	
-	method teledirigido(personaje){
-		
-		if(self.distanciaEnEjeY(personaje) or self.distanciaEnEjeX(personaje)){
-			
-			if(self.distanciaEnEjeY(personaje)){
-				return self.direccionX(personaje).mover(self)
-			} 	
-			else{
-				return self.direccionY(personaje).mover(self)}
-			}
-	   else {
-		   if((self.position().x() - personaje.position().x()).abs() >= (self.position().y() - personaje.position().y()).abs()){
-				return self.direccionY(personaje).mover(self)
-			}
-		   else{
-		   		return self.direccionX(personaje).mover(self)
-		   }
-		}
-	}
-	
-   method distanciaEnEjeX(personaje){
-   		return self.position().x() - personaje.position().x().abs()==0
-   }
-   
-   method distanciaEnEjeY(personaje){
-   	return self.position().y() - personaje.position().y().abs()==0
-   }
-   
-   method direccionX(personaje){
-		if(self.position().x() > personaje.position().x()){
-			return izquierda}
-		else{return derecha}
-		}
-		
-	
-	method direccionY(personaje){
-		if(self.position().y() > personaje.position().y()){
-			return abajo}
-		else{return arriba}
-	}
 }
+
 
 
