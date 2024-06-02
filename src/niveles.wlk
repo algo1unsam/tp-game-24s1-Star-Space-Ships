@@ -56,18 +56,44 @@ class Escenario{
 }
 
 object portada{
-	const testeo = new Fondo(image="assets/portada.png")
+	const property testeo = new Fondo(image="assets/portada.png")
 	const property intros = game.sound("assets/track6.mp3")
 	method iniciar(){
 		game.addVisual(testeo)
 		keyboard.enter().onPressDo{instrucciones.iniciar()}
+		game.schedule(150, {intros.play()})
 		intros.shouldLoop(true)
 		intros.volume(0.5)
-		game.schedule(150, {intros.play()})
-
-			}
+		
+			}	
 		}
 
+object reinicio{
+	method iniciar(){
+		game.addVisual(portada.testeo())
+		keyboard.enter().onPressDo{instrucciones.iniciar()}
+		game.schedule(150, {portada.intros().resume()})
+		portada.intros().shouldLoop(true)
+		portada.intros().volume(0.5)
+		
+			}	
+}
+
+object introSound{
+	
+	method volume(float)=game.sound("assets/track6.mp3").volume(float)
+	
+	method shouldLoop(boolean)=game.sound("assets/track6.mp3").shouldLoop(boolean)
+	
+	method play(){
+		game.sound("assets/track6.mp3").play()
+	}
+	
+	method stop(){
+		game.sound("assets/track6.mp3").play()
+		game.sound("assets/track6.mp3").stop()
+	}
+}
 object instrucciones{
 	method iniciar(){
 		game.clear()
@@ -175,7 +201,7 @@ object seleccionNaves{
 		}
 		
 	method navesSeleccionadas()=if(self.seleccionNavesOk()){
-		portada.intros().stop()
+		portada.intros().pause()
 		batalla.iniciar()
 	}else{}
 	
@@ -300,7 +326,7 @@ object final
 
 	method iniciar(){
 		self.reiniciar()
-		keyboard.enter().onPressDo{portada.iniciar()}
+		keyboard.space().onPressDo{reinicio.iniciar()}
 	}
 	method reiniciar(){
 		seleccionNaves.n1(baseDeDatos.bp1())
