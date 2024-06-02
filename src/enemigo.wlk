@@ -50,7 +50,7 @@ class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
 	
 	method seleccionarDireccion(){direccion=self.pantallaJugador()}
 	
-	method nuevoEnemigo()=self.aliado().enemigo()//if(self.jugador1Enemigo()){return jugador1}else{return jugador2}
+	method nuevoEnemigo()=self.aliado().enemigo()
 	
 	//Controla movimiento en límite de pantalla media
 	method limitePantallaAliado()=if(self.jugador1aliado()){jugador1.boundsPlayer().right(self)}else{jugador2.boundsPlayer().left(self)}
@@ -80,7 +80,7 @@ class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
 	
 	method haciaAbajo()=position.y() > jugador.enemigo().nave().position().y()
 	
-	method direccionX()=if(self.aIzquierda()){izquierda}else{return derecha}
+	method direccionX()=if(self.aIzquierda()){izquierda}else{derecha}
 		
 	method direccionY()=if(self.haciaAbajo()){abajo}else{arriba}
 	
@@ -107,11 +107,10 @@ class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
 		})
 	}
 		
-	//Muerte del enemigo, remueve perseguir y validar vida de enemigo. Se regenera del otro lado a los 10 seg.
+	
 	method muerte(){
 		game.removeTickEvent(self.identity().toString())
 		game.removeVisual(self)
-		//game.removeTickEvent(self.identity().toString()+"Validar")
 		self.regenerar()
 	}
 }

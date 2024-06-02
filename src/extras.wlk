@@ -139,6 +139,26 @@ class OrbeEnergia inherits Orbe
 	
 }
 
+class OrbeVida inherits Orbe
+{
+	const property recargaVida = 10
+	
+	override method image() = "assets/llave.png"
+	
+	override method regenerarOrbe(jugador)
+	{
+		game.schedule(15000,{=>self.seleccionPantalla(jugador)})
+	}
+	
+	override method recarga(jugador)
+	{
+		jugador.recargaVida(recargaVida)
+		self.removerPng(jugador)
+	}
+	
+}
+
+
 class OrbeArma inherits Orbe{
 		
 	method recarga() 
@@ -237,6 +257,7 @@ object reguladorDeEnergia
 		self.maxEnergia(jugador)
 	}
 }
+
 class EnergiaPng{
 	const position
 	method position()= position.position().left(1)

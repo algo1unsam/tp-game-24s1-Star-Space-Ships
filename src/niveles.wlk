@@ -3,7 +3,7 @@ import naves.*
 import pantallas.*
 import extras.*
 import enemigo.*
-//
+
 class Fondo{
 	const property position = game.origin()
 	var property image
@@ -189,10 +189,17 @@ object colisiones
 {	
 	var property jugadores = [jugador1,jugador2]
 		
-	method validar()= jugadores.forEach({jugador =>game.onCollideDo(jugador.nave(),{objeto => objeto.interaccionCon(jugador)})})
+	method validar()= jugadores.forEach({jugador =>game.onCollideDo(jugador.nave(),{objeto =>objeto.interaccionCon(jugador)})})
 		
 	method validarEnemigo(enemigo)=game.onCollideDo(enemigo.nave(),{objeto => objeto.interaccionCon(enemigo)})
-				
+	
+	method esMisil(objeto)=objeto.toString()=="un/a  Misil"
+	
+	method dobleImpacto(objeto)=game.colliders(objeto).size()>1
+	
+	method controlMisil(objeto)=self.esMisil(objeto) and self.dobleImpacto(objeto)
+	
+	
 }
 	
 
@@ -224,7 +231,8 @@ object visualesGeneral
 			new Enemigo().iniciarEnemigo(jugador2)
 		})
 		game.schedule(time*5,{new OrbeMisil().agregarOrbeP1() new OrbeMisil().agregarOrbeP2()})
-		game.schedule(time*8,{new OrbeDirigido().agregarOrbeP1() new OrbeDirigido().agregarOrbeP2()})			
+		game.schedule(time*8,{new OrbeVida().agregarOrbeP1() new OrbeVida().agregarOrbeP2()})
+		game.schedule(time*10,{new OrbeDirigido().agregarOrbeP1() new OrbeDirigido().agregarOrbeP2()})			
 	}
 }
 
