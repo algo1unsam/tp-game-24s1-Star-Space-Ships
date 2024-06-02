@@ -188,7 +188,7 @@ class Explosivo inherits Disparo{
 		self.evaluarComportamiento(_chara)
 		game.schedule(100,
 			{=>	game.addVisual(self)
-				self.sonido("assets/misil.mp3")})
+				self.sonido("assets/misil2.mp3")})
 	}
 	
 	
@@ -202,6 +202,9 @@ class Explosivo inherits Disparo{
 }
 
 class Explosion {
+	
+	const property explos = game.sound("assets/explosion.mp3")
+	
 	method image(){return "assets/explosion.png"}
 	
 	method interaccionCon(jugador){}
@@ -209,6 +212,9 @@ class Explosion {
 	
 	method explotar(positionX, positionY){
 		game.addVisualIn(self, game.at(positionX,positionY))
+		explos.shouldLoop(false)
+		explos.volume(0.5)
+		game.schedule(150, {explos.play()})
 		game.schedule(500,({game.removeVisual(self)}))
 	}
 }
@@ -245,7 +251,7 @@ class ProyectilTeledirigido inherits Disparo {
 	{	
 		game.schedule(100,
 			{=>	game.addVisual(self)
-				self.sonido("assets/blaster.mp3")
+				self.sonido("assets/misil.mp3")
 			})
 			self.seguir(self.seleccionarEnemigo(_chara).nave())	
 	}

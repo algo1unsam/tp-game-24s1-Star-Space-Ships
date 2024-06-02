@@ -64,7 +64,6 @@ describe "Gameplay" {
 		n2.position(game.center())
 		game.addVisual(n2)
 		n2.moverDerecha()
-		
 		colisiones.validar()
 	}
 	

@@ -14,8 +14,6 @@ class Fondo{
 		sonidoDeFondo.volume(0.5)
 		game.schedule(150, {sonidoDeFondo.play()})
 	}
-	
-	
 }
 
 class Marco{
@@ -57,14 +55,11 @@ class Escenario{
 
 object portada{
 	const testeo = new Fondo(image="assets/portada.png")
-	const property intros = game.sound("assets/track6.mp3")
+	const property intros = game.sound("assets/intro.mp3")
 	method iniciar(){
 		game.addVisual(testeo)
+		testeo.sonido(intros)
 		keyboard.enter().onPressDo{instrucciones.iniciar()}
-		intros.shouldLoop(true)
-		intros.volume(0.5)
-		game.schedule(150, {intros.play()})
-
 			}
 		}
 
@@ -73,8 +68,6 @@ object instrucciones{
 		game.clear()
 		game.addVisual(new Fondo(image="assets/controles.png"))
 		keyboard.enter().onPressDo{seleccionEscenarios.iniciar()}
-		
-		
 	}//
 }
 
@@ -82,7 +75,7 @@ object seleccionEscenarios{
 	var property cualFondo
 	const property marco3 = new Marco(position = game.at(2,3), image = "assets/marco3.png", x1 = 2, x2 = 16)
 	method space()		  = new Escenario( position = game.at(2,3), image = "assets/spaceSmall.png", sonidoDeFondo = game.sound("assets/track1.mp3") )
-	method clouds()	  = new Escenario( position = game.at(6,3), image = "assets/cloudsSmall.png", sonidoDeFondo = game.sound("assets/track2.mp3"))
+	method clouds()	      = new Escenario( position = game.at(6,3), image = "assets/cloudsSmall.png", sonidoDeFondo = game.sound("assets/track2.mp3"))
 	method pinkNebula()	  = new Escenario( position = game.at(10,3), image = "assets/pinknebulaSmall.png", sonidoDeFondo = game.sound("assets/track3.mp3"))
 	method futuro() 	  = new Escenario( position = game.at(14,3), image = "assets/futureSmall.png", sonidoDeFondo = game.sound("assets/track4.mp3"))
 	
@@ -107,7 +100,7 @@ object seleccionEscenarios{
 									cualFondo = game.uniqueCollider(marco3)
 									seleccionNaves.iniciar()
 									}}
-		//IMPORTANTE ponerlo dentro de un method
+
 		self.controlMovimiento()
 		
 	}
@@ -135,7 +128,6 @@ object seleccionNaves{
 		game.addVisual(new Fondo(image="assets/instrucciones.png"))
 		self.agregarNaves()
 		self.agregarTeclas()
-		
 	}
 	
 	method agregarNaves(){
@@ -155,7 +147,6 @@ object seleccionNaves{
 		 game.uniqueCollider(_marco).jugador(playerSelecc)
 		 playerSelecc.naveSeleccionada(true)
 		 }	 
-
 	}
 	
 	method superpuestos()=marco1.position()==marco2.position()
@@ -171,7 +162,6 @@ object seleccionNaves{
 		keyboard.left().onPressDo{if (marco2.movimiento()) {marco2.irALosLados(marco2.position().left(2))}}
 		keyboard.right().onPressDo{if (marco2.movimiento()) {marco2.irALosLados(marco2.position().right(2))}}
 		keyboard.l().onPressDo{if (marco2.movimiento()){self.escogerNave(marco2,jugador2) self.navesSeleccionadas()}}
-					
 		}
 		
 	method navesSeleccionadas()=if(self.seleccionNavesOk()){
@@ -248,7 +238,6 @@ object batalla
 		colisiones.validar()
 		final.escenario(escenarioElegido)
 		
-		
 	}
 	
 	method asignarNaves(){
@@ -260,11 +249,13 @@ object final
 {	
 	var property escenario
 	var final
+	const property victory = game.sound("assets/victoria.mp3")
 	
 	method finalizarBatalla(escenarioFin){
 		game.clear()
 		game.addVisual(final)
 		escenarioFin.sonidoDeFondo().stop()
+		final.sonido(victory)
 		self.iniciar()
 	}
 	
@@ -283,7 +274,6 @@ object final
 			self.finalizarBatalla(escenario)
 	}
 	
-	
 	method elMuerto(jugadores)=jugadores.find({jugador=>jugador.vidas()<=0})//seleccional al muerto
 		
 	method muertos(jugadores)=not jugadores.filter({jugador=>jugador.vidas()<=0}).isEmpty()//Controla muertos, usa colecciones
@@ -291,8 +281,11 @@ object final
 	method win(jugadores)=jugadores.find({jugador=>jugador.vidas()>0}).toString().drop(7)+".png"//Asigna número jugador ganador
 
 	method iniciar(){
-		self.reiniciar()
-		keyboard.enter().onPressDo{portada.iniciar()}
+		self.reiniciar() //reinicia las "variables"
+		keyboard.enter().onPressDo{
+			victory.stop()
+			portada.iniciar()
+		}
 	}
 	method reiniciar(){
 		seleccionNaves.n1(baseDeDatos.bp1())
