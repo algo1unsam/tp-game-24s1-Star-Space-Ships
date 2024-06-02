@@ -23,13 +23,13 @@ class Jugador
 		nave.direccion(self.direccionInicial())
 	}
 	
-	method recibeDanio(danio)= if(vidas-danio>0){vidas-= danio}
-	else{
-		vidas=0
-		final.remover(colisiones.jugadores())
-	} 
+	method recibeDanio(danio)= if(vidas-danio<=0){vidas=0
+												  final.remover(colisiones.jugadores())}
+								else{
+									vidas-= danio
+								} 
 		
-	method noHayEnemigo(direction)=not game.getObjectsIn(direction.nuevaPosicion(self)).contains("un/a  Enemigo")
+	
 
 	method gastarEnergia(gasto)
 	{
@@ -48,6 +48,12 @@ class Jugador
 		energia += orbe
 		reguladorDeEnergia.validarEnergia(self)
 	}
+	
+	method fullVida(orbe)=vidas+orbe>100
+	
+	method puedeMoverse(dentroLimite,direccion)=dentroLimite and nave.noHayEnemigo(direccion)
+	
+	method recargaVida(orbe)=if(not self.fullVida(orbe)){vidas+=orbe}else{vidas=100}
 }
 
 object jugador1 inherits Jugador(nave = null){
@@ -57,10 +63,10 @@ object jugador1 inherits Jugador(nave = null){
 	override method direccionInicial() = derecha
 	override method controles()
 	{
-		keyboard.a().onPressDo({if(boundsPlayer.left(nave))nave.moverIzquierda()})
-		keyboard.d().onPressDo({if(boundsPlayer.right(nave))nave.moverDerecha()})
-		keyboard.w().onPressDo({if(boundsPlayer.up(nave))nave.moverArriba()})
-		keyboard.s().onPressDo({if(boundsPlayer.down(nave))nave.moverAbajo()})
+		keyboard.a().onPressDo({if(self.puedeMoverse(boundsPlayer.left(nave),izquierda))nave.moverIzquierda()})
+		keyboard.d().onPressDo({if(self.puedeMoverse(boundsPlayer.right(nave),derecha))nave.moverDerecha()})
+		keyboard.w().onPressDo({if(self.puedeMoverse(boundsPlayer.up(nave),arriba))nave.moverArriba()})
+		keyboard.s().onPressDo({if(self.puedeMoverse(boundsPlayer.down(nave),abajo))nave.moverAbajo()})
 		keyboard.z().onPressDo({nave.disparo1()})
 		keyboard.x().onPressDo({nave.disparo2()})
 	}
@@ -76,10 +82,10 @@ object jugador2 inherits Jugador(nave = null){
 	override method direccionInicial() = izquierda
 	override method controles()
 	{
-		keyboard.left().onPressDo({if(boundsPlayer.left(nave))nave.moverIzquierda()})
-		keyboard.right().onPressDo({if(boundsPlayer.right(nave))nave.moverDerecha()})
-		keyboard.up().onPressDo({if(boundsPlayer.up(nave))nave.moverArriba()})
-		keyboard.down().onPressDo({if(boundsPlayer.down(nave))nave.moverAbajo()})
+		keyboard.left().onPressDo({if(self.puedeMoverse(boundsPlayer.left(nave),izquierda))nave.moverIzquierda()})
+		keyboard.right().onPressDo({if(self.puedeMoverse(boundsPlayer.right(nave),derecha))nave.moverDerecha()})
+		keyboard.up().onPressDo({if(self.puedeMoverse(boundsPlayer.up(nave),arriba))nave.moverArriba()})
+		keyboard.down().onPressDo({if(self.puedeMoverse(boundsPlayer.down(nave),abajo))nave.moverAbajo()})
 		keyboard.j().onPressDo({nave.disparo1()})
 		keyboard.k().onPressDo({nave.disparo2()})
 	}
@@ -156,9 +162,7 @@ class Nave
 		armaActual.dispararProyectil2(self)
 	}
 	
-	method agregarArmamento(orbe){
-		
-	}
+	method noHayEnemigo(direction)=not game.getObjectsIn(direction.nuevaPosicion(self)).contains("un/a  Enemigo")
 }
 
 //Esto no debería llevar super. Las naves no modifican ningún comportamiento heredado.

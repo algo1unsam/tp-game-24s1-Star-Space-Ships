@@ -26,7 +26,7 @@ class Disparo
 		self.haceDanio(jugador)
 	}
 	
-	method muertos()=final.muertos(colisiones.jugadores())//{final.remover(jugadores)}
+	method muertos()=final.muertos(colisiones.jugadores())
 	
 	method sonido(sonidoDeFondo)
 	{
@@ -234,13 +234,13 @@ class ProyectilTeledirigido inherits Disparo {
 	
 	method acortoDistanciaAlineado(enemigo)=if(self.alineadoY(enemigo)){self.direccionX(enemigo).mover(self)}else{self.direccionY(enemigo).mover(self)}
 	
-   method alineadoX(personaje)=self.position().x() - personaje.position().x().abs()==0
-   
-   method alineadoY(personaje)= self.position().y() - personaje.position().y().abs()==0
-   
-   method direccionX(enemigo)=if(self.aIzquierda(enemigo)){izquierda}else{derecha}
-   
-   method direccionY(enemigo)=if(self.haciaAbajo(enemigo)){abajo}else{ arriba}
+	method alineadoX(personaje)=self.position().x() - personaje.position().x().abs()==0
+ 	
+ 	method alineadoY(personaje)= self.position().y() - personaje.position().y().abs()==0
+	
+	method direccionX(enemigo)=if(self.aIzquierda(enemigo)){izquierda}else{derecha}
+
+	method direccionY(enemigo)=if(self.haciaAbajo(enemigo)){abajo}else{ arriba}
 		
 	method haciaAbajo(enemigo)=self.position().y() > enemigo.position().y()
 	
