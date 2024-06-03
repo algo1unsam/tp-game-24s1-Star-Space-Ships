@@ -3,7 +3,7 @@ import extras.*
 import naves.*
 import niveles.*
 
-
+//Superclase disparo heredan todos los proyectiles
 class Disparo
 {
 	var property position=game.origin()
@@ -12,7 +12,6 @@ class Disparo
 	method etiquetaTickMovement() = "mover"+self.toString()  
 	method image() = "assets/"+imagen
 	method danio() = 10
-	method tieneVida()=false
 	
 	method haceDanio(jugador)
 	{
@@ -33,6 +32,8 @@ class Disparo
 		game.sound(sonidoDeFondo).shouldLoop(false)
 		game.sound(sonidoDeFondo).play()
 	}
+	
+	//Los disparos de armamento de nave llevan asociado movimiento izquierda o derecha
 	method colocarProyectil(_chara)
 	{
 		
@@ -44,6 +45,7 @@ class Disparo
 		
 	}
 	
+	//Métodos movimiento de proyectiles
 	method moverIzquierda()
 	{ 	
 		position = self.position().left(1)
@@ -96,18 +98,6 @@ class Disparo
 	{
 		game.onTick(50,self.etiquetaTickMovement(),{=> self.moverDerecha()})
 	}
-	
-	method comportamientoArriba()
-	{
-		game.onTick(100,self.etiquetaTickMovement(),{=> self.moverArriba()})
-	}
-	
-	method comportamientoAbajo()
-	{
-		game.onTick(100,self.etiquetaTickMovement(),{=> self.moverAbajo()})
-	}
-	
-	
 }
 
 //IMPORTANTE Ver que le podemos poner para que sea una opción viable que dispare vertical=> Unifico métodos de disparo vertical 
@@ -143,6 +133,7 @@ class DisparoDiagonalInferior inherits DisparoDiagonal
 
 class DisparoEspecial inherits Disparo{
 	
+	//Dos disparos diagonales superior e inferior
 	const property arriba= new DisparoDiagonal(position=self.position(), imagen=self.imagen())
 	const property abajo=new DisparoDiagonalInferior(position=self.position(), imagen=self.imagen())
 	
@@ -158,7 +149,7 @@ class DisparoEspecial inherits Disparo{
 	}
 	
 	override method automaticSelfDestruction()
-	{//Elimina los dos ticks de movimiento asociados
+	{//Elimina los dos ticks de movimiento asociados para los dos
 			game.schedule(1500,{arriba.detenerMovimiento()
 								abajo.detenerMovimiento()
 			})
@@ -166,7 +157,7 @@ class DisparoEspecial inherits Disparo{
 }
 
 class Explosivo inherits Disparo{
-	
+	//Proyectil del misil
 	
 	override method danio()=30
 	
@@ -188,10 +179,10 @@ class Explosivo inherits Disparo{
 		self.evaluarComportamiento(_chara)
 		game.schedule(100,
 			{=>	game.addVisual(self)
-				self.sonido("assets/misil.mp3")})
+				self.sonido("assets/misil2.mp3")})
 	}
 	
-	
+	//Explosion visual
 	method explotar(positionX, positionY){
 		(positionX-2..positionX+2).forEach({n => new Explosion().explotar(n,positionY)})
 		(positionX-1..positionX+1).forEach({n => new Explosion().explotar(n,positionY+1)})
@@ -202,6 +193,9 @@ class Explosivo inherits Disparo{
 }
 
 class Explosion {
+	
+	const property explos = game.sound("assets/explosion.mp3")
+	
 	method image(){return "assets/explosion.png"}
 	
 	method interaccionCon(jugador){}
@@ -209,6 +203,9 @@ class Explosion {
 	
 	method explotar(positionX, positionY){
 		game.addVisualIn(self, game.at(positionX,positionY))
+		explos.shouldLoop(false)
+		explos.volume(0.5)
+		game.schedule(150, {explos.play()})
 		game.schedule(500,({game.removeVisual(self)}))
 	}
 }
@@ -218,6 +215,7 @@ class ProyectilTeledirigido inherits Disparo {
 	
 	method seleccionarEnemigo(nave)=nave.jugador().enemigo()
 	
+	//Si esta alineado se mueve en el eje alineado, caso contrario busca eje con menor distancia absoluta
 	method teledirigido(enemigo)=if(self.alineado(enemigo)){self.acortoDistanciaAlineado(enemigo)}else{self.acortoMenorDistanciaAbsoluta(enemigo)}
 	
 	method mayorAbsolutaEnX(enemigo)=(self.position().x() -enemigo.position().x()).abs() >= (self.position().y() - enemigo.position().y()).abs()
@@ -232,6 +230,7 @@ class ProyectilTeledirigido inherits Disparo {
  	
  	method alineadoY(personaje)= self.position().y() - personaje.position().y().abs()==0
 	
+	//Sentidos de la dirección del enemigo
 	method direccionX(enemigo)=if(self.aIzquierda(enemigo)){izquierda}else{derecha}
 
 	method direccionY(enemigo)=if(self.haciaAbajo(enemigo)){abajo}else{ arriba}
@@ -245,7 +244,7 @@ class ProyectilTeledirigido inherits Disparo {
 	{	
 		game.schedule(100,
 			{=>	game.addVisual(self)
-				self.sonido("assets/blaster.mp3")
+				self.sonido("assets/misil.mp3")
 			})
 			self.seguir(self.seleccionarEnemigo(_chara).nave())	
 	}
@@ -272,7 +271,7 @@ class ProyectilTeledirigido inherits Disparo {
 		game.removeVisual(self)
 	}	
 	
-	//Suma los daños de arma del jugador que o lanzó
+	//Suma los daños de arma de la colección del jugador que lo lanzó
 	method danio(jugador)=jugador.nave().armamento().sum({arma=>arma.danioArma()})
 	
 	override method haceDanio(jugador){

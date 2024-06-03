@@ -3,7 +3,8 @@ import naves.*
 import niveles.*
 import proyectiles.*
 import armas.*
-//
+
+//Visual contador de vidas. No interacciona en las colisiones
 class Vida
 {
 	const jugador
@@ -11,6 +12,7 @@ class Vida
 	method esEnemigo()=false
 	method interaccionCon(unJugador){}
 }
+//Contadores vidas player 1 y 2
 object vida1 inherits Vida(jugador = jugador1) {
 	method position()= game.at(1, 9)
 }
@@ -18,6 +20,8 @@ object vida1 inherits Vida(jugador = jugador1) {
 object vida2 inherits Vida(jugador = jugador2) {
 	method position()= game.at(17, 9)
 }
+
+//Color text energía
 object color
 {
 	method blanco()	= "FFFFFF"
@@ -30,22 +34,23 @@ class Energia
 	method position() = life.position().down(1).right(1)
 	method textColor() = color.blanco()
 	method text() = jugador.energia().toString()
-	method tieneVida()=false
 	method esEnemigo()=false
 	method interaccionCon(unJugador){}
 }
 
 
-
+//Visuals energías text
 object energia1 inherits Energia(jugador = jugador1, life = vida1){}
 object energia2 inherits Energia(jugador = jugador2, life = vida2){}
 
+
+//objetos de direccion. Determinan movimiento direccional de los disparos, calculan posición siguiente en la direccion
+//y mueven un objeto una posición en la dirección
 object derecha
 {
 	method nombre() = "der"
 	method comportamientoDireccional(disparo){disparo.comportamientoDerecha()}
 	method nuevaPosicion(personaje){return personaje.position().right(1)}
-	method repelerADireccionOpuesta(personaje){personaje.moverIzquierda()}
 	method mover(personaje){personaje.moverDerecha()}
 	
 }
@@ -57,6 +62,7 @@ object izquierda
 	method mover(personaje){personaje.moverIzquierda()}
 }
 
+//No hay disparos que se muevan "solamente" arriba o abajo por lo que no tienen comportamiento direccional 
 object arriba{
 	method mover(personaje){personaje.moverArriba()}
 	method nuevaPosicion(personaje){return personaje.position().up(1)}
@@ -67,9 +73,12 @@ object abajo{
 	method nuevaPosicion(personaje){return personaje.position().down(1)}
 }
 
+//Superclase orbe
 class Orbe{
 	
 	var property posicionInicial = 0
+	
+	//La aparición aleatoria en x se calcula distinto para jugador 1 y 2
 	method randomXP1() = 0.randomUpTo(9)
 	method randomXP2()=11.randomUpTo(20)
 	method randomY() = 0.randomUpTo(game.height())
@@ -77,6 +86,8 @@ class Orbe{
 	method position() = posicionInicial
 	method esEnemigo()=false
 	
+	
+	//Agregan orbes en posiciones random y se quitan a los 7 segundos en caso de no ser recogidos
 	method agregarOrbeP1()
 	{
 		posicionInicial =game.at(self.randomXP1(),self.randomY())
@@ -97,20 +108,26 @@ class Orbe{
 		}
 	}
 	
+	//Orbes de armas energía y vida tienen distinto tiempo de regeneración
 	method regenerarOrbe(jugador)
 	
+	//Quita orbe y lo regenra
 	method removerPng(jugador) 
 	{
 		game.removeVisual(self)
 		self.regenerarOrbe(jugador)
 	}
+	
+	//La interacción de los orbes con los jugadores siempre es recarga que es polimórfica según orbe de arma, energía o vida
 	method recarga(jugador)
-
+	
+	//Recargan solo si no es enemigo
 	method interaccionCon(jugador)
 	{	if(not jugador.nave().esEnemigo())
 		self.recarga(jugador)
 	}
 	
+	//Controla pantalla jugador para agregar el orbe que se regenera.
 	method pantallaJugador1(jugador)=jugador.nave().position().x()<10
 	
 	method seleccionPantalla(jugador)=if(self.pantallaJugador1(jugador)){self.agregarOrbeP1()}

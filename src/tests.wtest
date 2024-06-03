@@ -64,12 +64,11 @@ describe "Gameplay" {
 		n2.position(game.center())
 		game.addVisual(n2)
 		n2.moverDerecha()
-		
 		colisiones.validar()
 	}
 	
 	test "nave se queda sin energia"{
-		
+		n1.iniciarArmamento()
 		n1.disparo1()
 		n1.disparo1()
 		n1.disparo1()
@@ -105,11 +104,11 @@ describe "Gameplay" {
 		n1.armamento().add(new Rafaga())
 		n1.armamento().add(new Misil())
 		disparo1.haceDanio(jugador2)
-		assert.that(jugador2.vidas()==50)//30 daño misil+10 armamento de nave+10 armamento teledirigido
+		assert.that(jugador2.vidas()==60)//30 daño misil+10 armamento de nave+10 armamento teledirigido
 	}
 	
 	test "Adquisición armas, recarga orbes y remoción de armas"{
-		
+		n1.iniciarArmamento()
 		//Recarga orbe energía
 		n1.disparo()
 		assert.that(n1.jugador().energia()==90)

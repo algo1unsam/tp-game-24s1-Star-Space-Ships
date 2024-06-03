@@ -4,17 +4,18 @@ import naves.*
 import enemigo.*
 import proyectiles.*
 
+//De la clase Armamento heredan los armamentos básicos de la nave y las armas de recarga que se consiguen y recargan con orbes
 class Armamento
 {	
 	var property carga=0
 	var property cooldown=1
 	method _cooldown()={}//enfriamiento de armas de recarga
-	method image(_chara) = _chara.nombre() + "spell_" + _chara.direccion().nombre() + ".png"
+	method image(_chara) = _chara.nombre() + "spell_" + _chara.direccion().nombre() + ".png"//calcula la imagen del proyectil base de la nave
 	method danioArma()=10
 	
 	method vacio()=carga<=0 //controla si el arma de recarga esta vacía
 	
-	method puedeDisparar()=not (self.vacio() and cooldown == 1)//Controla q no este vacía o enfriando para poder disparar
+	method puedeDisparar()=not (self.vacio() and cooldown == 1) //Controla q no este vacía o enfriando para poder disparar
 	
 	method direccionDerecha(nave)=nave.direccion()==derecha //Controla direccion de la nave para direccionar posición inicial de proyectil
 	
@@ -31,19 +32,20 @@ class Armamento
 		return proyectil
 	}
 	
-	//Posicion inicial del proyectil
+	//Devuelve proyectil posicionado en la posicion inicial
 	method proyectilInit(nave,proyectil)=if(self.direccionDerecha(nave)){self.disparoADerecha(nave,proyectil)}else{self.disparoAIzquierda(nave,proyectil)}
 	
 	//Disparo de proyectil y control de tiempo en pantalla
 	method dispararProyectil(_chara,proyectil)
 	{
 		proyectil.colocarProyectil(_chara)
-		proyectil.automaticSelfDestruction()
+		proyectil.automaticSelfDestruction()//Tiempo en pantalla antes del remove
 	}
 	
 	//Disparo base
 	method dispararProyectil1(_chara)
-	{
+	{	
+		//Toma el personaje para el calculo del image del proyectil y dispara el proyectil posicionado
 		self.dispararProyectil(_chara,self.proyectilInit(_chara,new Disparo()))
 	}
 	
@@ -59,15 +61,17 @@ class Armamento
 	//espera fin de enfriamiento si se vuelve a disparar y está cargada, o en caso de estar vacía la quita de la lista
 	method waitOrRemove(nave)=if(self.notCooldown(nave)){self.removerArma(nave)}else{}
 	
-	//quita arma de la lista y asigna la anterior
+	//quita arma de la lista y asigna la anterior en la colección de armamento de la nave
 	method removerArma(nave){
 		nave.armamento().remove(nave.armamento().last())
 		nave.armaActual(nave.armamento().last())
 	}
 }
 
+//Armamento básico especial de las naves. Heredan el disparo Base
 object especialNave1 inherits Armamento
 {	
+	//Disparar proyectil 2 se ejecuta desde los controles de teclado para el armamento básico especial y las armas de recarga
 	override method dispararProyectil2(_chara)//Disparo especial nave1: dos proyectiles en diagonal y uno al centro
 	{
 		self.gastoEnergiaEspecial(_chara)
@@ -78,7 +82,7 @@ object especialNave1 inherits Armamento
 	}
 }
 
-//Armamento especial de las naves
+
 
 object especialNave2 inherits Armamento
 {
@@ -107,12 +111,12 @@ object especialNave3 inherits Armamento
 }
 
 
-//Armas de recarga
+//Armas de recarga. No gastan energía gastan su carga.
 class Rafaga inherits Armamento{
 		
 	const time=100
 	
-	//Disparo de ráfaga
+	//Disparo de ráfaga tres proyectiles secuenciados básicos
 	 override method dispararProyectil2(nave)=
 		
 			if(self.puedeDisparar())
@@ -129,6 +133,7 @@ class Rafaga inherits Armamento{
 	
 	
 	override method dispararProyectil( nave,proyectil){
+		//La rafága dispara el proyectil básico de la nave pero gasta su carga por cada disparo
 		carga -= 1
 		super(nave,proyectil)		
 	}
@@ -142,20 +147,22 @@ class Rafaga inherits Armamento{
 
 class Misil inherits Armamento{
 	
+	var proyectil=new Explosivo()
+	//Las armas de recarga tiene asociado un daño numerico acorde al dano de impacto de su proyectil
 	override method danioArma()=30
 	override method image(_chara)="Misil"+_chara.direccion()+".png"
 	
-	override method dispararProyectil2(nave)=
+	override method dispararProyectil2(nave){
 		if(self.puedeDisparar()){
 			cooldown = 0
-			self.dispararProyectil(nave,self.proyectilInit(nave, new Explosivo()))
+			self.dispararProyectil(nave,self.proyectilInit(nave, proyectil))//Dispara proyectil explosivo
 			carga -= 1
 			self._cooldown()
 		}
 		else{
 			self.waitOrRemove(nave)			
 		}
-	
+	}
 	//Mantiene disparo base de la nave		
 	override method dispararProyectil1(nave){
 		nave.armamento().get(0).dispararProyectil1(nave)
@@ -164,27 +171,25 @@ class Misil inherits Armamento{
 	override method _cooldown()=game.schedule(2500,{=> cooldown = 1})		
 }
 
+//Hereda Misil y lanza u misil teledirigido
 class ArmaTeledirigida inherits Misil{
+	
+	method cambiarProyectil(){proyectil=new ProyectilTeledirigido()}
 	
 	override method image(_chara)="Dirigido"+_chara.direccion()+".png"
 	
-	override method danioArma()=10
+	override method danioArma()=10//Tiene un daño bajo porque el proyectil teledirigido suma el daño de todsa las armas en la colección al impactar
 	
-	override method dispararProyectil2(nave)=
-		if(self.puedeDisparar()){
-			cooldown = 0
-			self.dispararProyectil(nave,self.proyectilInit(nave, new ProyectilTeledirigido()))
-			carga -= 1
-			self._cooldown()
-		}
-		else{
-			self.waitOrRemove(nave)			
-		}
-			
+	//Hace lo mismo que el lanzamisil pero cambia el proyectil
+	override method dispararProyectil2(nave){
+		self.cambiarProyectil()
+		super(nave)
+	}		
+	
 	override method _cooldown()=game.schedule(500,{=> cooldown = 1})
 }
 
-
+//Arma del bot enemigo. Solo tiene el disparo base
 object armamentoEnemigo inherits Armamento{
 	
 	override method dispararProyectil1(_chara)

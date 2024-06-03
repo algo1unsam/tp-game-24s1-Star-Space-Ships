@@ -15,7 +15,7 @@ class  Bounds{
 		return self.right(objeto)and self.left(objeto)and self.up(objeto) and self.down(objeto)
 	}
 }
-//Límites player uno pantalla división media
+//Límites player uno pantalla división media distintos para jugador 1 y 2
 object boundsP1 inherits Bounds{
 	override method right(objeto){
 		return objeto.position().x()<10	
