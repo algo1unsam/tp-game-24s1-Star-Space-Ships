@@ -59,11 +59,13 @@ class Armamento
 	method notCooldown(nave)=cooldown==1
 	
 	//espera fin de enfriamiento si se vuelve a disparar y está cargada, o en caso de estar vacía la quita de la lista
-	method waitOrRemove(nave)=if(self.notCooldown(nave)){self.removerArma(nave)}else{}
+	method waitOrRemove(nave)=if(self.vacio()){self.removerArma(nave)}else{}
+	
 	
 	//quita arma de la lista y asigna la anterior en la colección de armamento de la nave
 	method removerArma(nave){
-		nave.armamento().remove(nave.armamento().last())
+		game.say(nave,nave.armaActual().toString().drop(6)+ " descargada")
+		nave.armamento().remove(nave.armaActual())
 		nave.armaActual(nave.armamento().last())
 	}
 }
@@ -125,12 +127,9 @@ class Rafaga inherits Armamento{
 			self.dispararProyectil(nave,self.proyectilInit(nave,new Disparo()))
 			game.schedule(time,{self.dispararProyectil(nave,self.proyectilInit(nave,new Disparo()))})
 			game.schedule(2*time,{self.dispararProyectil(nave,self.proyectilInit(nave, new Disparo())) self._cooldown()})			
-			//Despues del último disparo, enfriamiento
+			
 			}
-			else{
-				self.waitOrRemove(nave)//Si se vuelve a disparar y el arma está vacía se quita de la lista
-			}
-	
+			else{self.waitOrRemove(nave)}
 	
 	override method dispararProyectil( nave,proyectil){
 		//La rafága dispara el proyectil básico de la nave pero gasta su carga por cada disparo
@@ -139,7 +138,7 @@ class Rafaga inherits Armamento{
 	}
 	
 	//Enfriamiento				
-	override method _cooldown()=game.schedule(600,{=> cooldown = 1})
+	override method _cooldown()=game.schedule(1000,{=> cooldown = 1})
 	
 
 }
@@ -147,7 +146,7 @@ class Rafaga inherits Armamento{
 
 class Misil inherits Armamento{
 	
-	var proyectil=new Explosivo()
+	
 	//Las armas de recarga tiene asociado un daño numerico acorde al dano de impacto de su proyectil
 	override method danioArma()=30
 	override method image(_chara)="Misil"+_chara.direccion()+".png"
@@ -155,13 +154,11 @@ class Misil inherits Armamento{
 	override method dispararProyectil2(nave){
 		if(self.puedeDisparar()){
 			cooldown = 0
-			self.dispararProyectil(nave,self.proyectilInit(nave, proyectil))//Dispara proyectil explosivo
+			self.dispararProyectil(nave,self.proyectilInit(nave, new Explosivo()))//Dispara proyectil explosivo
 			carga -= 1
 			self._cooldown()
 		}
-		else{
-			self.waitOrRemove(nave)			
-		}
+		else{self.waitOrRemove(nave)}
 	}
 	//Mantiene disparo base de la nave		
 	override method dispararProyectil1(nave){
@@ -174,17 +171,19 @@ class Misil inherits Armamento{
 //Hereda Misil y lanza u misil teledirigido
 class ArmaTeledirigida inherits Misil{
 	
-	method cambiarProyectil(){proyectil=new ProyectilTeledirigido()}
-	
 	override method image(_chara)="Dirigido"+_chara.direccion()+".png"
 	
 	override method danioArma()=10//Tiene un daño bajo porque el proyectil teledirigido suma el daño de todsa las armas en la colección al impactar
 	
-	//Hace lo mismo que el lanzamisil pero cambia el proyectil
 	override method dispararProyectil2(nave){
-		self.cambiarProyectil()
-		super(nave)
-	}		
+		if(self.puedeDisparar()){
+			cooldown = 0
+			self.dispararProyectil(nave,self.proyectilInit(nave, new ProyectilTeledirigido()))//Dispara proyectil explosivo
+			carga -= 1
+			self._cooldown()
+		}
+		else{self.waitOrRemove(nave)}
+	}	
 	
 	override method _cooldown()=game.schedule(500,{=> cooldown = 1})
 }

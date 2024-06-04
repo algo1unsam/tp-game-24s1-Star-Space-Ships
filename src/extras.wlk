@@ -10,6 +10,7 @@ class Vida
 	const jugador
 	method image() = "assets/"+jugador.vidas().toString()+"corazones.png"
 	method esEnemigo()=false
+	method tieneVida()=false
 	method interaccionCon(unJugador){}
 }
 //Contadores vidas player 1 y 2
@@ -35,6 +36,7 @@ class Energia
 	method textColor() = color.blanco()
 	method text() = jugador.energia().toString()
 	method esEnemigo()=false
+	method tieneVida()=false
 	method interaccionCon(unJugador){}
 }
 
@@ -85,7 +87,7 @@ class Orbe{
 	method image() 
 	method position() = posicionInicial
 	method esEnemigo()=false
-	
+	method tieneVida()=false
 	
 	//Agregan orbes en posiciones random y se quitan a los 7 segundos en caso de no ser recogidos
 	method agregarOrbeP1()
@@ -158,7 +160,7 @@ class OrbeEnergia inherits Orbe
 
 class OrbeVida inherits Orbe
 {
-	const property recargaVida = 10
+	const property recargaVida = 30
 	
 	override method image() = "assets/llave.png"
 	
@@ -279,6 +281,7 @@ class EnergiaPng{
 	method image()="assets/energiaPng.png"
 	method interaccionCon(unJugador){}
 	method esEnemigo()=false
+	method tieneVida()=false
 }
 
 object energia1Png inherits EnergiaPng(position = energia1){}

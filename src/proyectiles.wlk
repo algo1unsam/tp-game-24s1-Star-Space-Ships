@@ -13,6 +13,7 @@ class Disparo
 	method image() = "assets/"+imagen
 	method danio() = 10
 	method esEnemigo()=false
+	method tieneVida()=false
 	
 	method haceDanio(jugador)
 	{
@@ -162,14 +163,22 @@ class Explosivo inherits Disparo{
 	
 	override method danio()=30
 	
-	override method interaccionCon(jugador)
-	{	
+	method enPantalla()=game.allVisuals().contains(self)
+	
+	method controlDobleImpacto()=game.colliders(self).filter({objeto=>objeto.tieneVida()})
+	
+	method impactar()=self.controlDobleImpacto().forEach({nave=>self.haceDanio(nave.jugador())})
+	
+	//Controla removeVisual cuando hay muerte por misil y el regulador de vida finaliza batalla haciendo game clear
+	method controlRemove()=if(self.enPantalla()){game.removeVisual(self)}else{}
+	
+	override method interaccionCon(jugador){
 		game.removeTickEvent(self.etiquetaTickMovement())	
 		self.explotar(jugador.nave().position().x(),jugador.nave().position().y())
-		game.schedule(600,({self.haceDanio(jugador) game.removeVisual(self)}))	
-			
+		self.impactar()	
+		self.controlRemove()		
 	}
-	
+		
 	
 	override method automaticSelfDestruction(){
 		game.schedule(2500,{if(game.allVisuals().contains(self)){self.detenerMovimiento()}})
@@ -198,10 +207,12 @@ class Explosion {
 	const property explos = game.sound("assets/explosion.mp3")
 	
 	method esEnemigo()=false
+	method tieneVida()=false
+	method danio()=10
 	
 	method image(){return "assets/explosion.png"}
 	
-	method interaccionCon(jugador){}
+	method interaccionCon(jugador){jugador.recibeDanio(self.danio())}
 	method position()=game.origin()
 	
 	method explotar(positionX, positionY){
@@ -214,7 +225,7 @@ class Explosion {
 }
 
 
-class ProyectilTeledirigido inherits Disparo {
+class ProyectilTeledirigido inherits Explosivo{
 	
 	method seleccionarEnemigo(nave)=nave.jugador().enemigo()
 	
@@ -258,13 +269,17 @@ class ProyectilTeledirigido inherits Disparo {
 	
 	//Solo tiene un tiempo en panatalla antes de impactar para que pueda eludirse
 	override method automaticSelfDestruction(){
-		game.schedule(2000,{if(game.allVisuals().contains(self)){self.detenerMovimiento()}})
+		game.schedule(2000,{if(game.allVisuals().contains(self)){
+			self.explotar(self.position().x(),self.position().y())
+			self.detenerMovimiento()
+		}})
 	}
 	
 	override method interaccionCon(jugador)	
 		{
 			game.removeTickEvent(self.identity().toString())
-			game.removeVisual(self)	
+			game.removeVisual(self)
+			self.explotar(jugador.nave().position().x(),jugador.nave().position().y())	
 			self.haceDanio(jugador)
 			
 		}

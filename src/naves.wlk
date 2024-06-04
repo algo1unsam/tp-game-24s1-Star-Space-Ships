@@ -23,10 +23,13 @@ class Jugador
 		nave.direccion(self.direccionInicial())
 	}
 	
+	method muerto(danio)=vidas-danio<=0
+	
 	//Daño de proyectiles
-	method recibeDanio(danio)= if(vidas-danio<=0){
+	method recibeDanio(danio)= if(self.muerto(danio)){
 								vidas=0
-								final.remover(colisiones.jugadores())}
+								final.remover(colisiones.jugadores())
+								}
 								else{
 									vidas-= danio
 								} 
@@ -40,7 +43,7 @@ class Jugador
 	}
 	method sinEnergia() = energia <= 0
 	
-	//Si se busca disparar el armamento de la nave sin eneergía lanza una excepción
+	//Si se busca disparar el armamento de la nave sin energía lanza una excepción
 	method validarEnergia(){
 		game.errorReporter(self.nave())
 		if (self.sinEnergia()) {throw new Exception(message="Sin Energia")}
@@ -55,9 +58,6 @@ class Jugador
 	//Controla límite rango de vida para la recarga
 	method fullVida(orbe)=vidas+orbe>100
 	
-	//Controla q no se superponga con el enemigo aliado
-	method puedeMoverse(dentroLimite,direccion)=dentroLimite and nave.noHayEnemigo(direccion)
-	
 	method recargaVida(orbe)=if(not self.fullVida(orbe)){vidas+=orbe}else{vidas=100}
 }
 
@@ -70,10 +70,10 @@ object jugador1 inherits Jugador(nave = null){
 	override method direccionInicial() = derecha
 	override method controles()
 	{	//Controla la posición siguiente y límites de pantalla antes de moverse
-		keyboard.a().onPressDo({if(self.puedeMoverse(boundsPlayer.left(nave),izquierda))nave.moverIzquierda()})
-		keyboard.d().onPressDo({if(self.puedeMoverse(boundsPlayer.right(nave),derecha))nave.moverDerecha()})
-		keyboard.w().onPressDo({if(self.puedeMoverse(boundsPlayer.up(nave),arriba))nave.moverArriba()})
-		keyboard.s().onPressDo({if(self.puedeMoverse(boundsPlayer.down(nave),abajo))nave.moverAbajo()})
+		keyboard.a().onPressDo({if(boundsPlayer.left(nave))nave.moverIzquierda()})
+		keyboard.d().onPressDo({if(boundsPlayer.right(nave))nave.moverDerecha()})
+		keyboard.w().onPressDo({if(boundsPlayer.up(nave))nave.moverArriba()})
+		keyboard.s().onPressDo({if(boundsPlayer.down(nave))nave.moverAbajo()})
 		keyboard.z().onPressDo({nave.disparo1()})
 		keyboard.x().onPressDo({nave.disparo2()})
 	}
@@ -89,10 +89,10 @@ object jugador2 inherits Jugador(nave = null){
 	override method direccionInicial() = izquierda
 	override method controles()
 	{
-		keyboard.left().onPressDo({if(self.puedeMoverse(boundsPlayer.left(nave),izquierda))nave.moverIzquierda()})
-		keyboard.right().onPressDo({if(self.puedeMoverse(boundsPlayer.right(nave),derecha))nave.moverDerecha()})
-		keyboard.up().onPressDo({if(self.puedeMoverse(boundsPlayer.up(nave),arriba))nave.moverArriba()})
-		keyboard.down().onPressDo({if(self.puedeMoverse(boundsPlayer.down(nave),abajo))nave.moverAbajo()})
+		keyboard.left().onPressDo({if(boundsPlayer.left(nave))nave.moverIzquierda()})
+		keyboard.right().onPressDo({if(boundsPlayer.right(nave))nave.moverDerecha()})
+		keyboard.up().onPressDo({if(boundsPlayer.up(nave))nave.moverArriba()})
+		keyboard.down().onPressDo({if(boundsPlayer.down(nave))nave.moverAbajo()})
 		keyboard.j().onPressDo({nave.disparo1()})
 		keyboard.k().onPressDo({nave.disparo2()})
 	}
@@ -111,6 +111,7 @@ class Nave
 	var property jugador
 	var armamentoNave=null
 	method esEnemigo()=false
+	method tieneVida()=true
 	
 	
 	method nombre()
@@ -171,9 +172,6 @@ class Nave
 		armamento.add(armamentoNave)
 		armaActual=armamento.last()
 	}
-	
-	//Controla no superponerse con el enemigo aliado
-	method noHayEnemigo(direction)=not game.getObjectsIn(direction.nuevaPosicion(self)).any({objeto=>objeto.esEnemigo()})
 }
 
 

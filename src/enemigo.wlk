@@ -12,8 +12,10 @@ class Enemigo inherits Jugador{
 	method posicionInicial(){}
 	method controles(){}
 	
+	method muerto(danio)=vidas-danio<=0
+	
 	//A diferencia del jugador cuando muere ejectua método para quitar el evento de movimiento asociado y quitarse de pantalla
-	override method recibeDanio(danio)= if(vidas-danio>0){vidas-= danio}else{nave.muerte()} 
+	override method recibeDanio(danio)= if(not self.muerto(danio)){vidas-= danio}else{nave.muerte()} 
 	
 	//Solo tiene 30 de vida
 	method setearVidas(){
@@ -31,8 +33,10 @@ class Enemigo inherits Jugador{
 }
 
 class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
- {
-		
+ {	
+ 	//Controla que es un jugador
+	method tieneVida()=true
+	
 	override method nombre()="Enemigo_"
 	
 	//Para calcular la imagen quita "un/a  nave" del string
@@ -59,45 +63,30 @@ class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
 	//setea direccion
 	method seleccionarDireccion(){direccion=self.pantallaJugador()}
 	
-	//Controla que un objeto no sea el aliado
-	method elAliado(objeto)=objeto==self.aliado()
-	
 	//Cuando muere controla el enemigo actual para regenerarse
 	method nuevoEnemigo()=self.aliado().enemigo()
 	
 	//Controla movimiento en límite de pantalla media del aliado
-	method limitePantallaAliado()=if(self.jugador1aliado()){jugador1.boundsPlayer().right(self)}else{jugador2.boundsPlayer().left(self)}
+	method controlarEjeX()=if(self.jugador1aliado()){jugador1.boundsPlayer().right(self)}else{jugador2.boundsPlayer().left(self)}
 	
 	//Controla si el enemigo esta alineado en x para dispararle 
 	method alineadoX()=self.position().y() == jugador.enemigo().nave().position().y() 		
 	
-	//Controla que en la siguiente posición a moverse no este el aliado
-	method noHayJugador(direction)=not game.getObjectsIn(direction.nuevaPosicion(self)).any({objeto=>self.elAliado(objeto)})
-	
 	//Toma un objeto dirección y se mueve una posición en esa dirección
 	method moverse(direccion)=direccion.mover(self)
 	
-	//Controla si puede moverse en el ejeX
-	method controlarEjeX(direccion)=self.noHayJugador(direccion) and self.limitePantallaAliado()
-	
-	//En caso de estar en el límite de pantalla media controla que no este el aliado en la posición Y para moverse, o espera el proximo tick
-	method moveOrWait()=if(self.noHayJugador(self.direccionY())){self.moverse(self.direccionY())}else{}
-	
-	//Se regenear a los 10 segundos seleccioanando nuevamente al enemigo que lo destruye
+	//Se regenera a los 10 segundos seleccioanando nuevamente al enemigo que lo destruye
 	method regenerar(){game.schedule(10000,{new Enemigo().iniciarEnemigo(self.nuevoEnemigo())})}
 	
 	//Controla si es menor la distancia absoluta en eje Y
 	method menorDistanciaEjeY()=(position.x() - jugador.enemigo().nave().position().x()).abs() >= (position.y() - jugador.enemigo().nave().position().y()).abs()
 	
-	//Busca el sentido de la direccion del enemigo en el ejeY
-	method buscarAlineoHorizontal()=self.menorDistanciaEjeY() and self.noHayJugador(self.direccionY())
-	
 	//Busca acercarse en eje X
-	method buscarAcercarseEnX()=if(self.controlarEjeX(self.direccionX())){self.moverse(self.direccionX())}else{self.moveOrWait()}
+	method buscarAcercarseEnX()=if(self.controlarEjeX()){self.moverse(self.direccionX())}else{self.moverse(self.direccionY())}
 	
-	//Busca alinearse priemro en Y para evitar que siempre a la pantalla media. Aprovecha las diemnsiones de pantalla del juego
+	//Busca alinearse priemro en Y para evitar que siempre se dirija a la pantalla media. Aprovecha las dimensiones de pantalla del juego
 	//que en general dan menor distancia en Y	
-	method haciaJugador()=if(self.buscarAlineoHorizontal()){self.moverse(self.direccionY())}else{self.buscarAcercarseEnX()}
+	method haciaJugador()=if(self.menorDistanciaEjeY()){self.moverse(self.direccionY())}else{self.buscarAcercarseEnX()}
 	
 	//Controla si ek enemigo está a izquierda
 	method aIzquierda()=position.x() > jugador.enemigo().nave().position().x()
@@ -111,7 +100,7 @@ class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
 	method direccionY()=if(self.haciaAbajo()){abajo}else{arriba}
 	
 	
-	//Inicia nave eneiga
+	//Inicia nave enemiga
 	method iniciar(){
 		
 		self.seleccionarDireccion()
@@ -125,7 +114,7 @@ class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
 	//Si esta alineado dispara caso contrari se mueve hacia nave enemiga
 	method perseguir(){
 		
-		game.onTick(500,self.identity().toString(),{
+		game.onTick(1000,self.identity().toString(),{
 			if(self.alineadoX()){
 				armaActual.dispararProyectil1(self)
 			}// si se alinea con el jugador, dispara 
@@ -139,12 +128,15 @@ class naveEnemigo inherits Nave(armamento=[armamentoEnemigo])
 		armamentoNave=armamentoEnemigo
 		super()
 	}
-		
-	//Quita evento propio de persecución y el visual. Se regenera
+	
+	method enPantalla()=game.allVisuals().contains(self)	
+	//Quita evento propio de persecución y el visual. Se regenera. Cotrola q esté en pantalla cuando recibe doble daño
 	method muerte(){
+		if(self.enPantalla()){
 		game.removeTickEvent(self.identity().toString())
 		game.removeVisual(self)
-		self.regenerar()
+		self.regenerar()}
+		else{}
 	}
 }
 

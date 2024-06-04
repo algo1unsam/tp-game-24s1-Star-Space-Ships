@@ -12,4 +12,3 @@ program juego
 	game.start()
 	
 }
-//

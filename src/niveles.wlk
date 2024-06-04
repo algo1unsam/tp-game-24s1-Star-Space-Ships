@@ -8,6 +8,8 @@ import enemigo.*
 class Fondo{
 	const property position = game.origin()
 	var property image
+	method esEnemigo()=false
+	method tieneVida()=false
 	method interaccionCon(jugador){}
 	method sonido(sonidoDeFondo)
 	{
