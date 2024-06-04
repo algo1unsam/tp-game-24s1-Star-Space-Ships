@@ -197,6 +197,8 @@ class Explosion {
 	
 	const property explos = game.sound("assets/explosion.mp3")
 	
+	method esEnemigo()=false
+	
 	method image(){return "assets/explosion.png"}
 	
 	method interaccionCon(jugador){}
