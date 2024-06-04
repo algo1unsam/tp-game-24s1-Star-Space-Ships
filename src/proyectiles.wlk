@@ -12,6 +12,7 @@ class Disparo
 	method etiquetaTickMovement() = "mover"+self.toString()  
 	method image() = "assets/"+imagen
 	method danio() = 10
+	method esEnemigo()=false
 	
 	method haceDanio(jugador)
 	{
@@ -25,7 +26,7 @@ class Disparo
 		self.haceDanio(jugador)
 	}
 	
-	method muertos()=final.muertos(colisiones.jugadores())
+
 	
 	method sonido(sonidoDeFondo)
 	{

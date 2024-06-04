@@ -184,8 +184,6 @@ class OrbeArma inherits Orbe{
 	
 	method recargarArma(arma)=arma.carga(arma.carga()+self.recarga())
 	
-	method armaEnUso(jugador)=jugador.nave().armamento().last()==self.armaInstancia()
-	
 	method tieneArma(jugador)=jugador.nave().armamento().any({arma=>self.seleccionarArma(arma)})
 	
 	method seleccionarArma(arma)=self.arma().equals(arma.toString())
@@ -280,6 +278,7 @@ class EnergiaPng{
 	method position()= position.position().left(1)
 	method image()="assets/energiaPng.png"
 	method interaccionCon(unJugador){}
+	method esEnemigo()=false
 }
 
 object energia1Png inherits EnergiaPng(position = energia1){}

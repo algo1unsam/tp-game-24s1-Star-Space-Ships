@@ -136,7 +136,7 @@ object seleccionNaves{
 	var property n2 = new Nave2(position=game.at(9,4), jugador = "")
 	var property n3 = new Nave3(position=game.at(11,4), jugador = "")
 	
-	const property naves=#{n1,n2,n3}
+	const property naves=[n1,n2,n3]
 	
 	var property marco1 = new Marco(position = game.at(7,4), image = "assets/marco1.png", x1 = 7, x2 = 12)
 	var property marco2 = new Marco(position = game.at(9,4), image = "assets/marco2.png", x1 = 7, x2 = 12)
@@ -342,7 +342,8 @@ object final
 		seleccionNaves.n1(baseDeDatos.bp1())
 		seleccionNaves.n2(baseDeDatos.bp2())
 		seleccionNaves.n3(baseDeDatos.bp3())
-
+		
+		seleccionNaves.iniciarArmamento([seleccionNaves.n1(),seleccionNaves.n2(),seleccionNaves.n3()])
 
 		seleccionNaves.marco1(baseDeDatos.bmarco1())
 		seleccionNaves.marco2(baseDeDatos.bmarco2())
